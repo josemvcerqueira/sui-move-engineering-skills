@@ -51,7 +51,7 @@ SDK, indexing, transaction, and deployment tooling
 - Put authorization checks beside the private authority representation they inspect.
 - Extract a small authority module only for a real shared domain or to break a real module cycle.
 - Separate live mutable settings from cold policy snapshotted into newly created state.
-- Keep capability custody, ACL membership, cryptographic keys, identity, fees, upgrades, and product configuration in their concern-owning modules.
+- Store and mutate each administrative resource in the module that defines its authority, lifecycle, and invariants. Do not combine capability custody, ACL membership, cryptographic keys, identity, fees, upgrades, or product configuration in a generic `config`, `manager`, or `admin` module.
 - Avoid generic `config`, `utils`, `manager`, `helper`, or `registry` dumping grounds. Name the domain concern.
 
 Use these module roles only when needed:
@@ -79,7 +79,7 @@ Give an initializer an OTW parameter only when it validates, transforms, consume
 - Wrap a stored linear resource in `Option<T>` only when a transition must remove it from a borrowed parent; do not pair that option with a redundant claimed flag.
 - Use phantom type parameters for domain separation when no value of the type is stored.
 - Keep reserves, fees, pending burns, allocations, refunds, and claims in separate balances when their ownership or terminal treatment differs.
-- Keep fields private and expose only constructors and operations that preserve legal values.
+- Use the defining module's exclusive construction and field access to enforce the type's invariants. Expose only constructors and mutation operations that create valid state and preserve those invariants.
 - Give shared top-level state `key` only unless transfer or nesting is an explicit requirement.
 - Add `store`, `copy`, or `drop` only when the intended lifecycle requires it.
 - For every stored field, name its canonical authority and the transition that needs a local copy. Reject a mirror when construction makes disagreement unreachable or no operation can change the copy independently.
@@ -88,8 +88,12 @@ Give an initializer an OTW parameter only when it validates, transforms, consume
 - Do not pre-plant flags, modes, roles, migration fields, or version counters outside an accepted upgrade lifecycle for a transition that has no production caller.
 - Keep a one-field wrapper when it changes abilities, construction rights, type-level domain separation, atomic presence, or serialization. Data shape alone does not prove redundancy.
 - Keep a validated unit wrapper inside the package when it prevents illegal stored values; accept or emit a primitive at an external ABI boundary when exposing the wrapper would leak an internal representation, and validate once at construction.
-- Choose collection storage from the entries' lifecycle. Prefer a proved-bounded inline vector when entries have no independent identity or access path. Use dynamic fields when a frozen shared layout must accept later registered entries, dynamic object fields when a child must keep addressable identity, and tables only when scale justifies child-object lifecycle.
-- Before using child dynamic storage, prove that every close, cancel, and destroy path removes all children and recovers their storage rebates.
+- Choose collection storage by its size bound, lookup pattern, and object-visibility requirements:
+  - Use an inline vector when the contract enforces a safe maximum and entries are naturally accessed by index or iteration as part of the parent.
+  - Use dynamic fields for extensible, typed-key child storage that does not change the parent's struct layout.
+  - Use dynamic object fields when a child has its own `UID` and must remain separately discoverable by ID while attached to the parent.
+  - Use a table for a large map-like collection only when its scale justifies per-entry child storage and cleanup.
+- Before using child dynamic storage, define each child's terminal lifecycle. Close and cancel paths may retain children while the parent remains accessible. Before destroying a parent, remove every child and transfer or destroy it as required so no value becomes unreachable; recover storage rebates when economically worthwhile.
 
 ## Design authority by scope
 
@@ -105,6 +109,7 @@ Give an initializer an OTW parameter only when it validates, transforms, consume
 - Pin Git dependencies to immutable full commit SHAs and commit lockfiles.
 - Keep core buildable without mutable external heads.
 - Treat external interfaces as hostile versioned boundaries.
+- Never rely on an external dependency to enforce core invariants. Validate adapter inputs and outputs, limit delegated authority and custody, and re-check asset, state, and economic invariants before committing settlement.
 - Verify the deployed package, original type origin, ABI, and economic assumptions consumed by each adapter.
 
 ## Architecture gate
