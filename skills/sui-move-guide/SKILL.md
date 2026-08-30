@@ -33,7 +33,11 @@ Apply `$sui-move-security`, `$sui-move-source-style`, and `$sui-move-testing`. A
 
 ### Add or change a module, type, or public API
 
-Apply `$sui-move-architecture` and `$sui-move-source-style`. Add `$sui-move-security` for any authority, asset, lifecycle, or shared-state type. Treat published signatures and abilities as compatibility commitments.
+Apply `$sui-move-architecture` and `$sui-move-source-style`. Add `$sui-move-security` for any authority, asset, lifecycle, or shared-state type. Treat existing public function signatures as fixed except for permitted relaxation of generic ability constraints, and treat published struct and enum layouts, including abilities, as fixed; use a new type and explicit migration when stored shape must change.
+
+### Upgrade a package or migrate state
+
+Apply `$sui-move-architecture`, `$sui-move-security`, `$sui-move-source-style`, and `$sui-move-testing`; add `$sui-move-events-errors` when indexed behavior can change. Model the upgrade as a new immutable package version: old versions remain callable, module initializers do not rerun, existing public function signatures stay fixed except for permitted generic-constraint relaxation, struct and enum layouts and abilities stay fixed, dependencies require explicit relinking, and state-shape changes require a new type or a dynamic-extension seam designed before publication. Check the proposed diff against the active `UpgradeCap` policy.
 
 ### Add events or errors
 

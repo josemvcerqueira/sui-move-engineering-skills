@@ -1,6 +1,6 @@
 ---
 name: sui-move-security
-description: Secure Sui Move transitions, authority, signed actions, replay controls, bounded state, arithmetic, assets, adapters, time, oracles, randomness, pauses, versions, and upgrades. Use for any privileged, stateful, economic, cryptographic, shared-object, or external-integration Move change or review.
+description: Secure Sui Move transitions, authority, signed actions, replay controls, bounded state, arithmetic, asset custody, DeFi shares, rewards, staking, farms, lending, AMMs, adapters, time, oracles, randomness, pauses, versions, and upgrades. Use for any privileged, stateful, economic, cryptographic, shared-object, or external-integration Move change or review.
 ---
 
 # Sui Move Security
@@ -10,6 +10,10 @@ Make invalid transitions unrepresentable where possible and reject the rest befo
 Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
 
 Before code, name the assets and safety, conservation, liveness, and exit invariants; authorities and worst-case compromise; untrusted callers, composition, and dependencies; and required failure behavior.
+
+For each public or entry function, same-PTB composition, and reachable multi-transaction sequence, prove that a valid pre-state produces a valid post-state, an abort commits no partial effects, and returned objects, capabilities, witnesses, receipts, or other values cannot be recombined to violate an invariant. Security is not established until every callable path and composition preserves the package's safety, conservation, authority, liveness, and exit invariants.
+
+Before any irreversible or state-gating transition, prove that every required exit, settlement, cleanup, retry, cancellation, authority rotation, and recovery operation remains reachable. Reject a transition that can leave shared state permanently paused, locked, full, orphaned, version-incompatible, or dependent on an unavailable capability, object, or external system, unless it is a deliberate terminal state with all obligations already discharged.
 
 ## Fail fast and mutate last
 
@@ -80,6 +84,41 @@ Reject a setter whose new value equals the current value before mutation, with i
 - Before economic use, validate oracle source and feed identity, original type, pair, units or exponent, valid range, update time and freshness, confidence or deviation, liquidity assumptions, and whether a caller can select among historical updates. Define fail-closed or bounded fallback behavior.
 - Never derive economic randomness from object IDs, sender, `Clock`, or transaction data. For `sui::random`, keep the economic endpoint private `entry`, create `RandomGenerator` inside the consuming module, obey post-random PTB restrictions, balance resource use across outcomes, and use commit-reveal with inputs fixed before reveal when atomic abort selection remains unsafe.
 
+## Threat-model DeFi as adversarial accounting
+
+- For every economic unit, define who funds it, who owns its claim, when eligibility starts and ends, the numerator and denominator that allocate it, and the transition that checkpoints it. A caller must not acquire value earned before eligibility, retain value after exit, or create a redeemable claim without matching assets or liability.
+- Review profitable sequences, not isolated calls. Assume arbitrary identities, transaction ordering, flash-sized capital, same-PTB composition, donations or reward injections, position transfer, split, and merge, boundary timing, and repeated calls. Account for every attacker input, output, fee, and remaining liability.
+- Give every price, exchange rate, utilization value, reward index, health factor, and liquidity value one authoritative formula and state source. Recompute independent economic postconditions at custody boundaries; a math helper returning successfully does not prove that its result is economically possible.
+- Checkpoint time- and state-dependent accounting before any deposit, withdrawal, mint, burn, borrow, repay, liquidation, claim, position transfer, split, merge, weight change, fee change, or reward-schedule change that can alter an entitlement or its denominator.
+
+## Secure shares, vaults, and liquid staking
+
+- Compute mint and burn conversions from a named pre-operation snapshot of accounted assets, liabilities, and total shares after settling rewards, fees, losses, and slashing that economically precede the operation. Enforce minimum shares or assets, maximum input, and deadline; reject zero output.
+- Define zero- and near-zero-supply behavior. Prevent first-depositor and donation or injection manipulation with explicit internal accounting and an accepted bootstrap defense such as virtual assets and shares, locked minimum liquidity, or a minimum initial deposit. Prove the defense still holds after almost all shares are redeemed.
+- On Sui, trace actual public donation, capital-injection, receive, child-object, and synchronization paths. Do not assume that sending a `Coin<T>` to an object's address joins its private `Balance<T>`; apply donation defenses to value that a real protocol path includes in accounted assets.
+- Separate principal, realized rewards, pending deposits, pending exits, protocol fees, reserves, donated or unaccounted assets, and losses whenever their claims or eligibility differ. State exactly which components change the exchange rate and when; never let a raw balance or external report silently reprice claims.
+- For epoch or queued staking, bind each position to its activation and exit snapshots. Exclude pending stake from earlier rewards, reserve pending withdrawals before admitting later claims, and prove that reward reporting, deposits, redemptions, fees, and slashing cannot be ordered to transfer value between cohorts.
+- Bind each external reward, fee, or slashing report to the exact pool, validator or strategy, epoch, sequence, and authoritative balance delta. Reject duplicate, skipped, stale, future, or out-of-order settlement unless the accepted model defines a safe reconciliation path.
+- Permit an exchange rate to fall when the accepted model includes slashing or loss. Do not clamp a real loss into apparent solvency, and charge performance fees only under the declared realized-yield or high-water-mark policy.
+- Write a solvency identity covering redeemable shares, pending exits, accrued fees, reserves, and realizable assets. Define final redemption and dust treatment so the last users cannot extract prior cohorts' value or strand an unpayable claim.
+
+## Secure farms and reward programs
+
+- Use a global cumulative reward-per-eligible-unit index plus a per-position checkpoint or debt, or prove an equivalent construction. Settle the global index and position accrual before changing stake, weight, ownership, or schedule, and allocate elapsed rewards using the pre-change eligible stake.
+- Define zero eligible stake, program start and end, top-up, rate or allocation change, and leftover behavior. Do not assign an empty interval's rewards or rewards earned before activation to the first later participant; settle the old schedule before installing a new one.
+- Fund rewards before they become liabilities and conserve `funded = claimed + claimable + undistributed + remaining` independently for each reward type. Separate staked principal from funded rewards even when they use the same coin type; recovery or administration must not withdraw principal or accrued claims.
+- Prevent deposit-then-claim, flash-stake, same-PTB, epoch-boundary, self-referral, and boost sequences from capturing rewards without the intended time or risk. Position transfer, split, merge, and identity splitting must preserve combined claim and eligibility.
+- Bind every claim checkpoint or receipt to every varying domain: reward program, pool, position, reward asset, epoch or schedule, and claimant or approved beneficiary. Advance claimed amounts or nonces monotonically before payout.
+- Bound boost multipliers and total weighted stake. Update every affected numerator, denominator, and checkpoint atomically; reject duplicate registration and receipts from the wrong pool or reward program.
+- Define global and per-position rounding dust. Prove that claiming more often, splitting stake, or repeating minimum-value operations cannot increase rewards beyond the documented bound.
+
+## Prove AMM and lending solvency
+
+- Treat a mutable pool spot price, reserve ratio, or share redemption rate as attacker-influenceable within a PTB. Do not use it to value collateral, rewards, shares, or liquidations without an accepted manipulation-resistant construction and the oracle checks above.
+- For every swap, liquidity mint or burn, fee collection, and flash path, reconcile actual balance deltas and prove the reserve invariant plus fees. Bound minted liquidity by the assets actually supplied and independently assert semantic output bounds around custom fixed-point or wide-integer math.
+- For lending, accrue interest, reward, and reserve indices before changing supply, debt, collateral, or configuration. Round debt against the borrower, validate final health after every collateral or liability change, and reconcile cash, supplier claims, collectible debt, reserves, and recognized bad debt. Name whether reserves, insurance, suppliers, or frozen claims absorb each shortfall; never hide loss with a clamp or silent debt deletion.
+- Make liquidation reduce debt and seize only the bounded collateral and fee justified by a fresh price. Define close and dust behavior, and prove that a borrower controlling the liquidator cannot manufacture profit by first corrupting its own collateral, debt, or health accounting.
+
 ## Treat rounding as value transfer
 
 - Document who receives each remainder.
@@ -120,6 +159,9 @@ assets in = assets out + reserves + accrued fees + pending custody + explicitly 
 ## Define pause, version, and upgrade behavior
 
 - Define pause scope exactly and preserve user exits and mandatory settlement unless explicitly rejected by the design. Emergency authority may reduce risk, not seize, reprice, or rewrite user accounting.
+- Model an upgrade as publication of a new immutable package version, not in-place mutation. Old package versions remain callable, module initializers do not rerun, existing public function signatures must remain unchanged except for permitted relaxation of generic ability constraints, and struct and enum layouts and abilities must remain unchanged.
+- Check the diff against the active `UpgradeCap` policy. `compatible` may change implementations and non-public signatures, relax generic ability constraints, add declarations, and change dependencies while preserving link and layout compatibility; `additive` may only add declarations and change dependencies; `dep_only` may only change dependencies.
+- When stored shape must change, introduce a new type and an authorized migration, or use a dynamic-extension seam designed before publication; never assume upgraded code can add a field to an existing object.
 - For an upgradeable package with operational activation, gate every mutation of shared protocol state at its own use site with an explicit package version before other guards; a witness minted before cutover must not unlock an old mutator.
 - Keep native upgrade commit separate from operational activation. Activate only the expected next compiled generation so a wrong build leaves the previous generation able to authorize repair.
 - A dependent package stays linked to the dependency generation it was published or upgraded against. Before activation or destroying its `UpgradeCap`, prove every dependent route survives or schedule an explicit dependency re-link; never make a dependent immutable while it calls a seam the cutover closes.

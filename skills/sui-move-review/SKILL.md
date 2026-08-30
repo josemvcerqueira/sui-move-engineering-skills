@@ -22,14 +22,15 @@ Read the target repository instructions, package manifest, relevant design recor
 ## Review in this order
 
 1. Establish intended behavior, assets and invariants, threat assumptions, required liveness and exits, and the published compatibility boundary.
-2. Map package and module responsibilities, state ownership, dependency direction, and every authority issuance and custody-changing path.
-3. Run a redundancy pass over stored fields, event types and fields, public seams, parameters, helpers, and locals. Name each fact's authority and consumer; preserve type/ability boundaries and replay-critical redundancy.
-4. Search callers and trace every changed or transitively affected production transition through fail-fast guards, read-only dependency data, proposed values, postconditions, effectful handoffs, mutation, asset movement, emission, and returns.
-5. Reconcile arithmetic, rounding, balances, fees, burns, refunds, and residuals.
-6. Check event replay, payload necessity, error ownership, abort location, and guard precedence.
-7. Check naming, sections, imports, visibility, abilities, signatures, `self` receiver naming, receiver syntax, direct UID access, pinned framework reuse, macro choices, local usage, and test-only seams.
-8. Check test evidence across positive, negative, boundary, stateful invariant, adversarial composition, signatures, time, oracle, randomness, hostile-asset, replay, emergency, upgrade, and dependency risks.
-9. Run the relevant pinned build, lint, test, source-boundary, ABI, dependency, coverage, and diff checks when available.
+2. For an upgrade, compare against the published package and active `UpgradeCap` policy: existing public function signatures must remain unchanged except for permitted relaxation of generic ability constraints; struct and enum layouts and abilities must remain unchanged; module initializers must not be relied on; old package versions must remain safe or be operationally gated; and state-shape changes must use a new type and an authorized migration or a dynamic-extension seam designed before publication.
+3. Map package and module responsibilities, state ownership, dependency direction, and every authority issuance and custody-changing path.
+4. Run a redundancy pass over stored fields, event types and fields, public seams, parameters, helpers, and locals. Name each fact's authority and consumer; preserve type/ability boundaries and replay-critical redundancy.
+5. Search callers and trace every changed or transitively affected production transition through fail-fast guards, read-only dependency data, proposed values, postconditions, effectful handoffs, mutation, asset movement, emission, and returns.
+6. Reconcile arithmetic, rounding, balances, fees, burns, refunds, and residuals.
+7. Check event replay, payload necessity, error ownership, abort location, and guard precedence.
+8. Check naming, sections, imports, visibility, abilities, signatures, `self` receiver naming, receiver syntax, direct UID access, pinned framework reuse, macro choices, local usage, and test-only seams.
+9. Check test evidence across positive, negative, boundary, stateful invariant, adversarial composition, signatures, time, oracle, randomness, hostile-asset, replay, emergency, upgrade, and dependency risks.
+10. Run the relevant pinned build, lint, test, source-boundary, ABI, dependency, coverage, and diff checks when available.
 
 ## Report findings
 

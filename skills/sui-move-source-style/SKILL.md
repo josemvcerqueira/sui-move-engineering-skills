@@ -1,11 +1,11 @@
 ---
 name: sui-move-source-style
-description: Apply consistent Sui Move source organization, naming, visibility, abilities, signatures, `self` receiver naming, receiver syntax, direct UID access, pinned standard-library and framework reuse, macros, local-variable discipline, API vocabulary, documentation, and test-only conventions. Use when writing, simplifying, refactoring, or reviewing any `.move` source or test file.
+description: Apply consistent Sui Move source organization, naming, visibility, abilities, signatures, `self` receiver naming, receiver and index syntax, direct UID access, pinned standard-library and framework reuse, macros, local-variable discipline, API vocabulary, documentation, and test-only conventions. Use when writing, simplifying, refactoring, or reviewing any `.move` source or test file.
 ---
 
 # Sui Move Source Style
 
-Make every file communicate responsibility, authority, and lifecycle without implementation archaeology.
+Make each file clearly communicate what it owns, who may change it, and how its state is created, updated, and retired, without requiring the reader to trace unrelated modules or call sites.
 
 Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
 
@@ -62,10 +62,12 @@ Format function bodies as logical paragraphs, with one blank line between valida
 ## Keep visibility narrow
 
 - Use `public fun` only for real transaction or composition surfaces.
-- Prefer composable `public fun` APIs. Keep `entry` functions thin and use them only when endpoint-specific delivery is intentional.
+- Use a non-public `entry` function only when an operation must be directly callable by transactions but intentionally unavailable to other Move packages. Keep it thin, place endpoint-specific delivery there, and use a `public` function when cross-package Move composition is intended.
 - Use `public(package) fun` for cross-module package internals.
 - Use plain `fun` for same-module implementation details.
 - Keep public ABI minimal; an upgrade cannot erase old callable bytecode.
+- Treat every existing public function signature as fixed across compatible upgrades except for permitted relaxation of generic ability constraints. Treat every published struct or enum layout and ability set as fixed. Add a new function or type instead; when stored shape changes, provide an explicit authorized migration.
+- Treat `init` as initial-publication-only because upgrades do not rerun it. Put post-upgrade setup in a named authorized migration or activation function.
 - Keep struct fields private.
 - Do not expose production getters, constructors, cleanup, or mutation solely for tests or frontend convenience.
 
@@ -76,7 +78,7 @@ Format function bodies as logical paragraphs, with one blank line between valida
 - Add `store` to a capability only when public transfer outside its defining module or nesting is intended.
 - Avoid `copy` and `drop` on resources that must be consumed exactly once.
 - Use `phantom` when the type parameter separates domains without a stored value.
-- Explain when Move forces a type public while every operation and field remains package-only.
+- Move 2024 currently requires every struct type to be public. Do not confuse public type visibility with public authority: fields remain accessible only to the defining module, and constructors and operations should remain private or `public(package)` when external use is not intended.
 
 ## Order parameters
 
@@ -101,6 +103,14 @@ When a returned object has `key` but not `store`, provide its consuming sink in 
 - Keep constructors and operations without a natural receiver module-qualified: `market::new(...)`, `curve::quote_buy(...)`.
 - Add a module-local `use fun dependency::function as Type.method` when a pinned dependency exposes a natural receiver without receiver form. For a dependency type, keep the alias module-local. `public use fun` is legal only in the type's defining module; use it there only when it materially clarifies the external API.
 - In tests, alias helpers with `use fun helper as Fixture.method`.
+
+## Prefer canonical index syntax
+
+- For new packages, set the stable `edition = "2024"` in `Move.toml`. In an existing package, follow its pinned edition and migrate deliberately; do not introduce an obsolete preview edition such as `2024.beta`.
+- In Move 2024, prefer `&collection[index]`, `&mut collection[index]`, `collection[index]`, and indexed assignment over explicit `borrow` and `borrow_mut` calls when the collection exposes canonical index syntax. Bare `collection[index]` dereferences and copies the element, so it requires the element type to have `copy`.
+- Pass each index argument exactly as the annotated accessor declares it: use `collection[key]` for a key taken by value and `collection[&key]` for a key taken by reference.
+- Add `#[syntax(index)]` to a custom type only when indexing is its canonical, unsurprising public lookup API. Annotated accessors must be public and defined in the type's module, so do not widen a package-only API merely to obtain bracket syntax or hide insertion, settlement, authorization, or other surprising work behind it.
+- When defining both immutable and mutable index accessors, keep their type parameters, constraints, subject type, index parameters, and return type identical except for reference mutability.
 
 ## Read object identity directly
 
