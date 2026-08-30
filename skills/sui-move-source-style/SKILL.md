@@ -36,13 +36,7 @@ Format function bodies as logical paragraphs, with one blank line between valida
 
 ## Reuse pinned libraries before writing helpers
 
-- Resolve the exact compiled revision from the edited package's own `Move.lock`, including the root package's dependency mapping and every deployment environment. Do not assume the unsuffixed framework entry is the root's pin; follow the root package's `deps` mapping and confirm the compiled dependency name in `BuildInfo.yaml`.
-- Inspect the matching MoveStdlib, Sui framework, and dependency source before implementing an integer bound, arithmetic or conversion helper, vector or option helper, manual loop, object operation, or transfer seam. After a pinned build, check `build/<package>/sources/dependencies/<Dep>/` and `build/<package>/BuildInfo.yaml`, or use upstream source at the locked revision. A local interface stub proves linkage, not behavior.
-- Search those sources for an existing function, receiver method, macro, or equivalent hand-rolled pattern before adding local code. Prefer the standard implementation when its units, rounding, borrow behavior, evaluation order, and abort semantics match the required contract.
-- Prefer pinned methods and macros such as `checked_*`, `max_value!`, `div_ceil`, `mul_div`, `mul_div_ceil`, `do!`, `range_do!`, `do_ref!`, `map!`, `fold!`, `any!`, and `all!` when they make the invariant clearer. Use `saturating_*` only when saturation is the documented result, never as overflow recovery. Confirm availability for the exact integer width or collection type; do not use a macro merely to shorten code.
-- Read a macro's definition before use. Because expansion occurs at the call site, confirm argument evaluation, capture and borrow behavior, short-circuiting, abort location, and lint output.
-- Do not wrap a standard function only to rename it. Add a wrapper only when it owns domain validation, units, rounding, visibility, or a stable protocol boundary.
-- Treat online documentation for a newer revision as discovery only; prove availability and semantics against the repository's pinned source.
+Before adding, replacing, or reviewing arithmetic, conversion, collection, iteration, object, transfer, macro, or framework-wrapper logic, read [Pinned library reuse](references/pinned-library-reuse.md) completely. Prefer the pinned implementation when its semantics match; do not add a wrapper solely to rename it.
 
 ## Name by domain meaning
 

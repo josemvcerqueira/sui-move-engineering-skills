@@ -44,11 +44,20 @@ if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(packageJson.version)) {
 }
 
 const changelog = readFileSync(join(repositoryRoot, "CHANGELOG.md"), "utf8");
-if (!changelog.includes(`## [${packageJson.version}]`)) {
-  fail(`CHANGELOG.md has no entry for ${packageJson.version}`);
+const currentChangelogVersion = changelog.match(/^## \[([^\]]+)\]/m)?.[1];
+if (currentChangelogVersion !== packageJson.version) {
+  fail(
+    `CHANGELOG.md starts at ${currentChangelogVersion ?? "no version"}, expected ${packageJson.version}`,
+  );
+}
+
+const readme = readFileSync(join(repositoryRoot, "README.md"), "utf8");
+if (!readme.includes(`Current release: \`v${packageJson.version}\`.`)) {
+  fail(`README.md does not declare current release v${packageJson.version}`);
 }
 
 const expectedNames = [];
+const localReferences = [];
 for (const skillFile of collectSkillFiles(repositoryRoot)) {
   const contents = readFileSync(skillFile, "utf8");
   const frontmatter = contents.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -67,6 +76,16 @@ for (const skillFile of collectSkillFiles(repositoryRoot)) {
   }
   if (!existsSync(join(dirname(skillFile), "agents", "openai.yaml"))) {
     fail(`${name} has no agents/openai.yaml metadata`);
+  }
+
+  for (const match of contents.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+    const target = match[1].split("#", 1)[0].split("?", 1)[0];
+    if (!target || /^(?:[a-z][a-z0-9+.-]*:|#)/i.test(target)) continue;
+
+    if (!existsSync(resolve(dirname(skillFile), target))) {
+      fail(`${skillFile} links to missing local file ${target}`);
+    }
+    localReferences.push({ name, target });
   }
 
   expectedNames.push(name);
@@ -105,6 +124,13 @@ try {
       fail(
         `installer found [${installedNames.join(", ")}], expected [${expectedNames.join(", ")}]`,
       );
+    }
+
+    for (const { name, target } of localReferences) {
+      const installedSkill = join(installedDirectory, name, "SKILL.md");
+      if (!existsSync(resolve(dirname(installedSkill), target))) {
+        fail(`${name} installation is missing linked file ${target}`);
+      }
     }
   }
 } finally {
