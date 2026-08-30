@@ -1,9 +1,9 @@
 ---
-name: jose-move-source-style
-description: Apply Jose's Sui Move source organization, naming, visibility, abilities, signatures, `self` receiver naming, receiver syntax, direct UID access, pinned standard-library and framework reuse, macros, local-variable discipline, API vocabulary, documentation, and test-only conventions. Use when writing, simplifying, refactoring, or reviewing any `.move` source or test file.
+name: sui-move-source-style
+description: Apply consistent Sui Move source organization, naming, visibility, abilities, signatures, `self` receiver naming, receiver syntax, direct UID access, pinned standard-library and framework reuse, macros, local-variable discipline, API vocabulary, documentation, and test-only conventions. Use when writing, simplifying, refactoring, or reviewing any `.move` source or test file.
 ---
 
-# Jose Move Source Style
+# Sui Move Source Style
 
 Make every file communicate responsibility, authority, and lifecycle without implementation archaeology.
 

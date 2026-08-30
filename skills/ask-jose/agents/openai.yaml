@@ -1,7 +1,0 @@
-interface:
-  display_name: "Ask Jose"
-  short_description: "Choose the right Jose Move skill or flow"
-  default_prompt: "Use $ask-jose to choose the right Jose Move skill or review flow for this task."
-
-policy:
-  allow_implicit_invocation: false

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Jose Move Source Style"
-  short_description: "Apply Move naming, sections, and API style"
-  default_prompt: "Use $jose-move-source-style to implement or review this Move source against Jose's house style."

@@ -1,9 +1,9 @@
 ---
-name: jose-move-review
-description: Audit Sui Move code against the complete Jose Move standard. Use for pull-request, branch, diff, package, module, security, architecture, event, error, test, or release-readiness reviews that need all Jose Move conventions applied together.
+name: sui-move-review
+description: Audit Sui Move code against the complete engineering standard. Use for pull-request, branch, diff, package, module, security, architecture, event, error, test, or release-readiness reviews that need all suite conventions applied together.
 ---
 
-# Jose Move Review
+# Sui Move Review
 
 Perform one evidence-based review across the complete standard.
 
@@ -11,11 +11,11 @@ Perform one evidence-based review across the complete standard.
 
 Read these sibling skills completely before reviewing:
 
-1. [jose-move-architecture](../jose-move-architecture/SKILL.md)
-2. [jose-move-source-style](../jose-move-source-style/SKILL.md)
-3. [jose-move-security](../jose-move-security/SKILL.md)
-4. [jose-move-events-errors](../jose-move-events-errors/SKILL.md)
-5. [jose-move-testing](../jose-move-testing/SKILL.md)
+1. [sui-move-architecture](../sui-move-architecture/SKILL.md)
+2. [sui-move-source-style](../sui-move-source-style/SKILL.md)
+3. [sui-move-security](../sui-move-security/SKILL.md)
+4. [sui-move-events-errors](../sui-move-events-errors/SKILL.md)
+5. [sui-move-testing](../sui-move-testing/SKILL.md)
 
 Read the target repository instructions, package manifest, relevant design records, implementation, tests, and structural gates. Treat reference repositories as evidence, not authority over the target's accepted protocol decisions.
 

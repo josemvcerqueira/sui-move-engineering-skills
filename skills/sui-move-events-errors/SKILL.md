@@ -1,9 +1,9 @@
 ---
-name: jose-move-events-errors
-description: Design Jose-style Sui Move events, minimal payloads, replay contracts, native-metadata boundaries, event identity and ordering, emitters, stable numeric errors, abort ownership, and diagnostic compatibility. Use when adding, compacting, changing, testing, indexing, or reviewing any Move event, payload field, error, guard, or transition's emitted facts.
+name: sui-move-events-errors
+description: Design replay-complete Sui Move events, minimal payloads, native-metadata boundaries, event identity and ordering, emitters, stable numeric errors, abort ownership, and diagnostic compatibility. Use when adding, compacting, changing, testing, indexing, or reviewing any Move event, payload field, error, guard, or transition's emitted facts.
 ---
 
-# Jose Move Events and Errors
+# Sui Move Events and Errors
 
 Treat events and aborts as published protocol interfaces, not incidental diagnostics.
 

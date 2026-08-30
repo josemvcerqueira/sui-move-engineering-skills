@@ -1,4 +1,4 @@
-# Jose Move Skills
+# Sui Move Engineering Skills
 
 Reusable Sui Move engineering standards extracted from production contract patterns and generalized for other teams. The suite separates concerns so agents load only the rules a task needs.
 
@@ -7,20 +7,20 @@ Reusable Sui Move engineering standards extracted from production contract patte
 Install the complete suite globally for every supported agent:
 
 ```bash
-npx skills add josemvcerqueira/jose-move-skills -g --all
+npx skills add josemvcerqueira/sui-move-engineering-skills -g --all
 ```
 
 List the available skills before installing:
 
 ```bash
-npx skills add josemvcerqueira/jose-move-skills --list
+npx skills add josemvcerqueira/sui-move-engineering-skills --list
 ```
 
 Install one skill only:
 
 ```bash
-npx skills add josemvcerqueira/jose-move-skills -g \
-  --skill jose-move-security \
+npx skills add josemvcerqueira/sui-move-engineering-skills -g \
+  --skill sui-move-security \
   --yes
 ```
 
@@ -30,7 +30,7 @@ The installer detects supported agents and links or copies each selected skill i
 
 One semantic version covers the complete suite. A patch release corrects wording or sources, a minor release adds rules, checks, or skills, and a major release removes or renames skills or changes a workflow incompatibly. Individual `SKILL.md` files do not carry separate versions.
 
-Read the [changelog](CHANGELOG.md) or watch [GitHub Releases](https://github.com/josemvcerqueira/jose-move-skills/releases) to learn what changed and whether action is required.
+Read the [changelog](CHANGELOG.md) or watch [GitHub Releases](https://github.com/josemvcerqueira/sui-move-engineering-skills/releases) to learn what changed and whether action is required.
 
 Update every globally installed skill:
 
@@ -41,33 +41,33 @@ npx skills update -g
 Update one skill:
 
 ```bash
-npx skills update jose-move-security -g
+npx skills update sui-move-security -g
 ```
 
 ## Use
 
-- Invoke `$ask-jose` when you want the smallest applicable skill sequence.
-- Invoke `$jose-move-review` for a full architecture, source, security, event/error, and testing audit.
+- Invoke `$sui-move-guide` when you want the smallest applicable skill sequence.
+- Invoke `$sui-move-review` for a full architecture, source, security, event/error, and testing audit.
 - Invoke a focused skill directly, or let compatible agents load it from its frontmatter description.
 
 ## Skills
 
 | Skill | Use it for |
 | --- | --- |
-| `ask-jose` | Choose the correct skill or complete flow. Invoke it explicitly. |
-| `jose-move-architecture` | On-chain scope, packages, modules, minimal state, authority, abilities, and dependency seams. |
-| `jose-move-source-style` | Sections, imports, names, visibility, signatures, `self` naming, receiver syntax, direct UID access, framework and macro reuse, locals, and API vocabulary. |
-| `jose-move-security` | Fail-fast transitions, capabilities, signatures, replay, bounds, arithmetic, custody, adapters, time, oracles, randomness, and upgrades. |
-| `jose-move-events-errors` | Minimal replay-complete events, native metadata, identity, emitters, stable errors, and abort ownership. |
-| `jose-move-testing` | Risk-based tests, exact failures, fixtures, properties, replay, and release gates. |
-| `jose-move-review` | Full review across all five standards. |
+| `sui-move-guide` | Choose the correct skill or complete flow. Invoke it explicitly. |
+| `sui-move-architecture` | On-chain scope, packages, modules, minimal state, authority, abilities, and dependency seams. |
+| `sui-move-source-style` | Sections, imports, names, visibility, signatures, `self` naming, receiver syntax, direct UID access, framework and macro reuse, locals, and API vocabulary. |
+| `sui-move-security` | Fail-fast transitions, capabilities, signatures, replay, bounds, arithmetic, custody, adapters, time, oracles, randomness, and upgrades. |
+| `sui-move-events-errors` | Minimal replay-complete events, native metadata, identity, emitters, stable errors, and abort ownership. |
+| `sui-move-testing` | Risk-based tests, exact failures, fixtures, properties, replay, and release gates. |
+| `sui-move-review` | Full review across all five standards. |
 
 ## Suggested flows
 
 - New package or major feature: architecture → security → source style → events/errors → testing → review.
 - Existing transition: security + source style + testing; add architecture or events/errors when their boundaries change.
-- Pull request: `jose-move-review`.
-- Unsure: `ask-jose`.
+- Pull request: `sui-move-review`.
+- Unsure: `sui-move-guide`.
 
 Each directory under `skills/` is installer-discoverable. Install the complete set for routing and full reviews, or install one focused standard for a narrow task.
 

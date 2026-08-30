@@ -1,9 +1,9 @@
 ---
-name: jose-move-testing
-description: Build Jose-style risk-based Sui Move tests, exact abort checks, guard-precedence cases, stateful hot-potato fixtures, math properties, event reducers, dependency verification, and release gates. Use when adding, changing, fixing, or reviewing Move tests or behavior.
+name: sui-move-testing
+description: Build risk-based Sui Move tests, exact abort checks, guard-precedence cases, stateful hot-potato fixtures, math properties, event reducers, dependency verification, and release gates. Use when adding, changing, fixing, or reviewing Move tests or behavior.
 ---
 
-# Jose Move Testing
+# Sui Move Testing
 
 Test the invariant and threat surface, not only the happy-path function name.
 

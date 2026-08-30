@@ -1,9 +1,9 @@
 ---
-name: jose-move-architecture
-description: Design Jose-style Sui Move packages, modules, minimal state, authority, and dependency boundaries. Use when adding, simplifying, or reviewing packages, modules, shared objects, capabilities, witnesses, hot potatoes, storage fields, public types, adapters, or cross-package composition.
+name: sui-move-architecture
+description: Design secure, minimal Sui Move packages, modules, state, authority, and dependency boundaries. Use when adding, simplifying, or reviewing packages, modules, shared objects, capabilities, witnesses, hot potatoes, storage fields, public types, adapters, or cross-package composition.
 ---
 
-# Jose Move Architecture
+# Sui Move Architecture
 
 Design the smallest on-chain system that preserves consensus, custody, composition, and reconstruction.
 

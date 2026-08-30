@@ -75,7 +75,7 @@ expectedNames.sort();
 
 if (process.exitCode) process.exit(process.exitCode);
 
-const installRoot = mkdtempSync(join(tmpdir(), "jose-move-skills-"));
+const installRoot = mkdtempSync(join(tmpdir(), "sui-move-engineering-skills-"));
 try {
   const install = spawnSync(
     "npx",

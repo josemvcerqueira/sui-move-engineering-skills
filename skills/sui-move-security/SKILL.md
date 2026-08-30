@@ -1,9 +1,9 @@
 ---
-name: jose-move-security
-description: Secure Jose-style Sui Move transitions, authority, signed actions, replay controls, bounded state, arithmetic, assets, adapters, time, oracles, randomness, pauses, versions, and upgrades. Use for any privileged, stateful, economic, cryptographic, shared-object, or external-integration Move change or review.
+name: sui-move-security
+description: Secure Sui Move transitions, authority, signed actions, replay controls, bounded state, arithmetic, assets, adapters, time, oracles, randomness, pauses, versions, and upgrades. Use for any privileged, stateful, economic, cryptographic, shared-object, or external-integration Move change or review.
 ---
 
-# Jose Move Security
+# Sui Move Security
 
 Make invalid transitions unrepresentable where possible and reject the rest before mutation.
 

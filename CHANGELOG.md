@@ -1,6 +1,6 @@
 # Changelog
 
-This file records user-visible changes to the complete Jose Move skill suite.
+This file records user-visible changes to the complete Sui Move engineering skill suite.
 
 ## [0.1.0] - 2026-08-30
 
@@ -17,16 +17,15 @@ First formal release after auditing the skills against Blast contract decisions,
 
 ### Affected skills
 
-- `ask-jose`
-- `jose-move-architecture`
-- `jose-move-events-errors`
-- `jose-move-review`
-- `jose-move-security`
-- `jose-move-source-style`
-- `jose-move-testing`
+- `sui-move-guide`
+- `sui-move-architecture`
+- `sui-move-events-errors`
+- `sui-move-review`
+- `sui-move-security`
+- `sui-move-source-style`
+- `sui-move-testing`
 
 ### Action required
 
-- New users: install the suite with `npx skills add josemvcerqueira/jose-move-skills -g --all`.
-- Existing users: run `npx skills update -g`, or update one skill with `npx skills update <skill-name> -g`.
-- No skill was removed or renamed in this release.
+- New users: install the suite with `npx skills add josemvcerqueira/sui-move-engineering-skills -g --all`.
+- The initial release uses the `sui-move-*` skill namespace; no migration is required.
