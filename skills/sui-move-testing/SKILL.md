@@ -17,7 +17,7 @@ Target repository instructions, accepted design records, pinned toolchain behavi
 - Accounting: reserves, fees, allocations, vesting, burns, and conservation after operations and sequences.
 - Adversarial: direct public calls, PTB composition, replay, third-party signature submission, expiry, wrong domain, wrong type or object, slippage, stale or selectable oracle data, callback-like handoffs, randomness selection, duplicate settlement, and hostile assets.
 - Events: every payload field and full reducer replay against final state.
-- Upgrades: old-version rejection, initializer authority, capability binding, policy narrowing, and ABI/storage compatibility.
+- Upgrades: compatibility rejection for incompatible changes to existing public function signatures or struct and enum layouts and abilities; permitted generic-constraint relaxation; initializer non-rerun; old-version safety or operational rejection; capability binding; policy narrowing; new-type migration; and dependency relinking.
 - Deployment and dependencies: dry run, finality, normalized artifacts, exact pins, and live external ABI checks.
 
 ## Write direct tests
@@ -76,7 +76,7 @@ Use small, ability-free hot-potato fixtures:
 - Add properties for monotonicity, bounded dust, inverse behavior, and allocation sums.
 - Keep shared vectors explicit about units and regenerate them from one formula source; do not hand-edit expected values.
 - When replacing custom logic with a pinned framework function or macro, retain boundary, rounding, and exact-abort tests; similarity of names does not prove semantic equivalence.
-- Exercise a bounded inline collection at maximum cardinality through applicable lifecycle paths, and measure serialized size and gas. For dynamic child storage, also decode every entry and prove close and destruction strand no children or storage rebates.
+- Exercise a bounded inline collection at maximum cardinality through applicable lifecycle paths, and measure serialized size and gas. For dynamic child storage, also decode every entry, prove parent destruction strands no child or value, cover intentional retention on close or cancel, and test rebate recovery only when the accepted economics require it.
 
 ## Test adversarial integrations
 
@@ -84,7 +84,7 @@ Use small, ability-free hot-potato fixtures:
 - When a contract verifies off-chain signatures, submit each signed action through the intended actor and an unrelated third party; the latter must fail harmlessly or produce exactly the signer-approved result. Test every bound domain and omit domains the accepted design does not require.
 - Exercise admitted assets under mint, deny, global pause, and action-policy powers that the asset model permits, and reconcile authoritative balance deltas.
 - For irreversible authority destruction or handoff, prove successor usability plus every required exit, cancel, refund, claim, unwind, retry, and settlement path under pause and version states.
-- For `sui::random`, test forbidden composition, conditional abort and retry, gas-budget outcome selection, internal generator construction, and any commit-reveal liveness.
+- For `sui::random`, test forbidden composition and selective-commit attacks across every outcome-dependent bounded resource, not only gas. Using the target network's `ProtocolConfig`, drive each outcome near applicable limits—including computation, created/deleted/transferred object IDs, dynamic-field and object-runtime work, events, and written object/effects size—and prove that no attacker-controlled budget, input, state, or surrounding PTB can make only favorable outcomes commit. Also test internal generator construction and commit-reveal liveness.
 
 ## Freeze event replay
 
@@ -96,13 +96,14 @@ Use small, ability-free hot-potato fixtures:
 - Cover configuration changes between economic operations.
 - Cover failed transitions and retries without inventing events for rolled-back state.
 - Cover multiple entities and multiple events in one transaction.
-- Make a schema change fail until reducer and field assertions are updated.
+- Treat a new event payload type or changed emission semantics as an event ABI migration. In Move tests, assert every payload field and emission condition. When an indexer is in scope, require its reducer tests to support the migration before release.
 - Keep explicit tests for deliberate redundancy such as delta plus total, old/new pairs, complete reconciliation snapshots, and values removed or delivered.
 
 ## Verify upgrades and dependencies
 
 - Test correct and incorrect `Publisher`, `UpgradeCap`, package, digest, receipt, and policy transitions.
-- Test old-version rejection and initializer authority.
+- Prove module initializers do not rerun on upgrade. When operational activation exists, test old-version rejection and explicit migration or activation authority.
+- Run compatibility checks that reject incompatible changes to existing public function signatures, struct or enum layouts, or abilities while accepting permitted generic-constraint relaxation; test the active `UpgradeCap` policy and an authorized new-type migration when stored shape must change.
 - For every version-gated cross-package seam, test that a dependent linked to the previous generation is rejected after activation and that the accepted dependency re-link or retirement path remains live.
 - Test that every returned key-only object composes in the same transaction and lands through its defining module's `share` or `keep` sink.
 - Verify an adapter against the deployed external ABI, not only local link stubs.

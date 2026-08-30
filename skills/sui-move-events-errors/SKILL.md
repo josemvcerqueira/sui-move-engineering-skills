@@ -11,7 +11,14 @@ Target repository instructions, accepted design records, pinned toolchain behavi
 
 ## Make events replay complete
 
-Starting at publication, a consumer using native transaction effects and metadata, immutable published bytecode, durably available immutable content of objects recorded by creation effects, and the protocol event stream must reconstruct every economically relevant mutable fact promised to index. If the archive cannot guarantee that object content, emit the missing primitive. Do not copy a fact into a payload merely because it lives outside the inner Move struct.
+From package publication onward, every economically relevant mutable fact promised to index must be reconstructible from:
+
+- native transaction effects and metadata;
+- immutable published bytecode;
+- historical contents of object versions referenced by creation effects, but only when durable archival access is guaranteed; and
+- the protocol event stream.
+
+If these sources do not durably provide a required fact, emit the smallest primitive needed to reconstruct it. Before adding an event field, check the available transaction metadata, effects, and object content; do not duplicate a fact merely because it is absent from the inner Move struct.
 
 - Emit each mutable setter, claim, accrual, distribution, trade, lifecycle transition, allocation, and migration settlement.
 - Name payloads as completed facts in past tense.
@@ -37,7 +44,7 @@ Starting at publication, a consumer using native transaction effects and metadat
 ## Design identity deliberately
 
 - Carry identity for every multi-instance entity.
-- Use original type identity when upgrades must not split one logical domain.
+- Do not use the executing package version ID as an event-domain key. Compatible upgrades preserve existing Move type identity; partition a continuing event stream by its stable payload type and entity identity.
 - A typed singleton mutation can omit its unchanging owner ID only when production creates exactly one instance, replay begins at publication, and the payload type partitions the stream.
 - Keep old/new identity for root replacement or any transition that changes recognized singleton identity.
 - Restore explicit identity when a later design permits replacement or multiple instances.
@@ -49,9 +56,11 @@ Starting at publication, a consumer using native transaction effects and metadat
 - Include asset deltas and post-accrual totals when reconciliation requires both.
 - Include the applied fee or policy input if configuration can change later.
 - Document deliberately non-indexable facts, such as current ownership of a freely transferable capability, and direct consumers to native object or transaction data.
-- Treat any payload field change as an indexing ABI migration. Update reducers and field tests with it.
+- Before publication, keep reducers and field tests synchronized with every payload field change. After publication, compatible upgrades cannot add, remove, rename, reorder, or retype fields of an existing payload struct, or change its abilities; add a new payload type instead. Treat that replacement, and any change in an existing field's meaning or event-emission semantics, as an indexing ABI migration.
 
 ## Centralize event construction
+
+The envelope provides one stable outer event namespace for the package lineage. Indexers can subscribe to the envelope's defining module and inspect its type argument to discover payload types added by later package versions. A separate package has a different envelope identity and must be indexed separately.
 
 When the package standard uses an envelope:
 
@@ -101,4 +110,4 @@ assert!(recipient != @0x0, protocol::errors::invalid_recipient!());
 
 ## Compatibility gate
 
-Treat payload types, fields, wrappers, error numbers, error meanings, raising modules, and guard precedence as published API. Before publication, make any compaction a deliberate one-time decision. After publication, append new errors or add new payload types; do not silently reinterpret existing interfaces.
+Treat payload types, fields, wrappers, error numbers, error meanings, raising modules, and guard precedence as published API. Before publication, make any compaction a deliberate one-time decision. After publication, append new errors or add new payload types; do not silently reinterpret existing interfaces. Adding emission only to upgraded code does not make a stream replay-complete while callers can still use an old package version; gate old mutators through an accepted operational version transition before promising complete replay.
