@@ -11,7 +11,7 @@ Route the task to the smallest set of Jose Move skills that covers the risk. Thi
 
 - `$jose-move-architecture`: package boundaries, module responsibilities, minimal state, canonical authority, dependency direction, on-chain scope, abilities, capabilities, and cross-package seams.
 - `$jose-move-source-style`: module and function names, file sections, imports, visibility, `self` receiver naming, receiver syntax, direct UID access, pinned framework functions and macros, parameter and local discipline, API vocabulary, docs, and test-only seams.
-- `$jose-move-security`: guard order, authorization, signed actions, replay, bounded state, arithmetic, rounding, conservation, custody, external calls, pause, versioning, and upgrades.
+- `$jose-move-security`: fail-fast ordering, authorization, signed actions, replay, bounded work, arithmetic, custody, external seams, time, oracles, randomness, pause, versioning, and upgrades.
 - `$jose-move-events-errors`: completed-fact events, minimal payloads, native metadata, replay schemas, identity, ordering, wrapper/emitter architecture, stable error registries, abort ownership, and compatibility.
 - `$jose-move-testing`: risk-based tests, exact failures, guard precedence, stateful hot-potato fixtures, property tests, event replay, dependency verification, and release gates.
 - `$jose-move-review`: one full audit across all five standards.

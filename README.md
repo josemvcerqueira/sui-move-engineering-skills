@@ -20,16 +20,28 @@ Install one skill only:
 
 ```bash
 npx skills add josemvcerqueira/jose-move-skills -g \
-  --skill jose-move-review \
+  --skill jose-move-security \
   --yes
 ```
 
 The installer detects supported agents and links or copies each selected skill into the appropriate user-level directory. Restart or begin a new agent session after installation if the new skills are not discovered immediately.
 
-To update installed skills later:
+## Updates and releases
+
+One semantic version covers the complete suite. A patch release corrects wording or sources, a minor release adds rules, checks, or skills, and a major release removes or renames skills or changes a workflow incompatibly. Individual `SKILL.md` files do not carry separate versions.
+
+Read the [changelog](CHANGELOG.md) or watch [GitHub Releases](https://github.com/josemvcerqueira/jose-move-skills/releases) to learn what changed and whether action is required.
+
+Update every globally installed skill:
 
 ```bash
 npx skills update -g
+```
+
+Update one skill:
+
+```bash
+npx skills update jose-move-security -g
 ```
 
 ## Use
@@ -45,7 +57,7 @@ npx skills update -g
 | `ask-jose` | Choose the correct skill or complete flow. Invoke it explicitly. |
 | `jose-move-architecture` | On-chain scope, packages, modules, minimal state, authority, abilities, and dependency seams. |
 | `jose-move-source-style` | Sections, imports, names, visibility, signatures, `self` naming, receiver syntax, direct UID access, framework and macro reuse, locals, and API vocabulary. |
-| `jose-move-security` | Guards, capabilities, signed actions, replay, bounds, arithmetic, custody, adapters, and upgrades. |
+| `jose-move-security` | Fail-fast transitions, capabilities, signatures, replay, bounds, arithmetic, custody, adapters, time, oracles, randomness, and upgrades. |
 | `jose-move-events-errors` | Minimal replay-complete events, native metadata, identity, emitters, stable errors, and abort ownership. |
 | `jose-move-testing` | Risk-based tests, exact failures, fixtures, properties, replay, and release gates. |
 | `jose-move-review` | Full review across all five standards. |
@@ -57,7 +69,7 @@ npx skills update -g
 - Pull request: `jose-move-review`.
 - Unsure: `ask-jose`.
 
-Each directory under `skills/` is an independent installable skill. Install the complete set when you want routing and full reviews, or install only the focused standards your project uses.
+Each directory under `skills/` is installer-discoverable. Install the complete set for routing and full reviews, or install one focused standard for a narrow task.
 
 Project-specific accepted decisions and published ABI take precedence over examples. Do not copy product constants, storage layouts, error numbers, or dependency revisions between protocols without independent review.
 

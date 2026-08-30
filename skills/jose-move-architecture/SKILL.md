@@ -7,6 +7,8 @@ description: Design Jose-style Sui Move packages, modules, minimal state, author
 
 Design the smallest on-chain system that preserves consensus, custody, composition, and reconstruction.
 
+Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
+
 ## Decide what belongs on chain
 
 Put logic or state on chain only when it must:
@@ -17,8 +19,6 @@ Put logic or state on chain only when it must:
 - commit the smallest primitive fact required for independent reconstruction.
 
 Keep deterministic projections, formatting, aggregation, previews, transaction construction, and convenience reads off chain. A transition can recompute a derived value internally when it must enforce fees, slippage, bounds, conservation, or another invariant.
-
-Before adding on-chain code, identify the exact transition or invariant that requires it. If consumers can derive the value from canonical state and replayable events, do not add storage, an event, or a public getter for it.
 
 ## Choose package boundaries
 
@@ -85,7 +85,7 @@ Give an initializer an OTW parameter only when it validates, transforms, consume
 - For every stored field, name its canonical authority and the transition that needs a local copy. Reject a mirror when construction makes disagreement unreachable or no operation can change the copy independently.
 - Do not duplicate state already owned by a native registry or canonical object merely to revalidate it later. Read the authority at the transition that needs it, unless a sealed construction proof already establishes the invariant.
 - Prefer consuming a unique authorization resource over storing a parallel `claimed` flag or nonce.
-- Do not pre-plant flags, modes, version counters, roles, or migration fields for a transition that has no production caller or accepted lifecycle.
+- Do not pre-plant flags, modes, roles, migration fields, or version counters outside an accepted upgrade lifecycle for a transition that has no production caller.
 - Keep a one-field wrapper when it changes abilities, construction rights, type-level domain separation, atomic presence, or serialization. Data shape alone does not prove redundancy.
 - Keep a validated unit wrapper inside the package when it prevents illegal stored values; accept or emit a primitive at an external ABI boundary when exposing the wrapper would leak an internal representation, and validate once at construction.
 - Choose collection storage from the entries' lifecycle. Prefer a proved-bounded inline vector when entries have no independent identity or access path. Use dynamic fields when a frozen shared layout must accept later registered entries, dynamic object fields when a child must keep addressable identity, and tables only when scale justifies child-object lifecycle.

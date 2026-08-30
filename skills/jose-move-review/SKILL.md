@@ -21,14 +21,14 @@ Read the target repository instructions, package manifest, relevant design recor
 
 ## Review in this order
 
-1. Establish the intended behavior and published compatibility boundary.
-2. Map package and module responsibilities, state ownership, authority, and dependency direction.
+1. Establish intended behavior, assets and invariants, threat assumptions, required liveness and exits, and the published compatibility boundary.
+2. Map package and module responsibilities, state ownership, dependency direction, and every authority issuance and custody-changing path.
 3. Run a redundancy pass over stored fields, event types and fields, public seams, parameters, helpers, and locals. Name each fact's authority and consumer; preserve type/ability boundaries and replay-critical redundancy.
-4. Trace every changed production transition through guards, computation, mutation, asset movement, emission, and returns.
+4. Search callers and trace every changed or transitively affected production transition through fail-fast guards, read-only dependency data, proposed values, postconditions, effectful handoffs, mutation, asset movement, emission, and returns.
 5. Reconcile arithmetic, rounding, balances, fees, burns, refunds, and residuals.
 6. Check event replay, payload necessity, error ownership, abort location, and guard precedence.
 7. Check naming, sections, imports, visibility, abilities, signatures, `self` receiver naming, receiver syntax, direct UID access, pinned framework reuse, macro choices, local usage, and test-only seams.
-8. Check test evidence across positive, negative, boundary, adversarial, replay, upgrade, and dependency risks.
+8. Check test evidence across positive, negative, boundary, stateful invariant, adversarial composition, signatures, time, oracle, randomness, hostile-asset, replay, emergency, upgrade, and dependency risks.
 9. Run the relevant pinned build, lint, test, source-boundary, ABI, dependency, coverage, and diff checks when available.
 
 ## Report findings

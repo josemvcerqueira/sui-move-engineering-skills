@@ -7,15 +7,17 @@ description: Design Jose-style Sui Move events, minimal payloads, replay contrac
 
 Treat events and aborts as published protocol interfaces, not incidental diagnostics.
 
+Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
+
 ## Make events replay complete
 
-Starting at publication, a consumer using native transaction effects and metadata, immutable published bytecode, immutable content of objects recorded by creation effects, and the protocol event stream must reconstruct every economically relevant mutable fact promised to index. Do not copy a fact into a payload merely because it lives outside the inner Move struct.
+Starting at publication, a consumer using native transaction effects and metadata, immutable published bytecode, durably available immutable content of objects recorded by creation effects, and the protocol event stream must reconstruct every economically relevant mutable fact promised to index. If the archive cannot guarantee that object content, emit the missing primitive. Do not copy a fact into a payload merely because it lives outside the inner Move struct.
 
 - Emit each mutable setter, claim, accrual, distribution, trade, lifecycle transition, allocation, and migration settlement.
 - Name payloads as completed facts in past tense.
 - Emit only after final state and asset movement are known.
 - Carry stable entity identity plus the primitive delta, old/new pair, or final snapshot required for replay.
-- Include post-transition totals when they make dropped or duplicated events self-reconciling.
+- Include post-transition totals when the replay contract needs to detect gaps or resynchronize a promised aggregate.
 - Record the exact economic inputs used when later global configuration can change historical interpretation.
 - Reject no-op setter updates so every emitted old/new pair represents a real state transition.
 - Do not emit derived display values that consumers can reproduce exactly.
@@ -26,12 +28,11 @@ Starting at publication, a consumer using native transaction effects and metadat
 
 - Name the new protocol fact each event commits; the payload type's occurrence is itself a fact. Remove the event only when both that occurrence and every field already come from native effects, transaction metadata, immutable bytecode, or the prior replay stream.
 - Default package initialization to eventless when it only shares or delivers objects recorded by publication effects and initializes compiled constants. Keep a creation event when an ordinary function commits caller-supplied or deployer-selected values that can vary.
-- Do not restate `ctx.sender()` as `buyer`, `seller`, `claimant`, `caller`, or another actor field; consumers receive the sender in native event metadata. Keep an actor, attested identity, beneficiary, recipient, or refund address only when it can differ from the sender, name it for that role, and record why it differs.
+- Before publication, do not restate `ctx.sender()` as `buyer`, `seller`, `claimant`, `caller`, or another actor field; consumers receive the sender in native event metadata. Keep an actor, attested identity, beneficiary, recipient, or refund address only when it can differ from the sender, name it for that role, and record why it differs.
 - On a non-mutating fact, emit only what it newly commits, not current values of state it leaves unchanged and the prior stream already reconstructs.
-- Do not emit the ID of an object the same transition destroys when the economically relevant fact is what that destruction commits, unless the prior stream keyed an open fact on that ID and replay must close it.
-- Bounded immutable inputs may live only in the created object's canonical content; emit their count when useful and let consumers read the object recorded by creation effects.
-- Preserve deliberate redundancy that makes a fact self-reconciling: delta plus final total, an old/new mutation pair, a complete required snapshot, or the identity and final value removed or delivered. A later compaction audit must not remove it.
-- Before publication, compact derivable fields deliberately. After publication, treat removal or reshaping as an ABI migration rather than cleanup.
+- Keep a destroyed object's ID when it distinguishes a multi-instance entity or closes a keyed replay fact; omit it only when payload type and native metadata identify the entity uniquely.
+- Bounded immutable inputs may live only in the created object's canonical content when the declared data-availability model makes that content durable.
+- Preserve deliberate redundancy that lets consumers verify a fact or resynchronize a promised aggregate: delta plus final total, an old/new mutation pair, a complete required snapshot, or the identity and final value removed or delivered. A later compaction audit must not remove it.
 
 ## Design identity deliberately
 

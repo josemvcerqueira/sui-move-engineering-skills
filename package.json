@@ -1,0 +1,10 @@
+{
+  "name": "jose-move-skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reusable Sui Move engineering skills for AI coding agents",
+  "license": "MIT",
+  "scripts": {
+    "validate": "node scripts/validate-release.mjs"
+  }
+}
