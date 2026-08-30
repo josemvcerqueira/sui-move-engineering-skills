@@ -30,6 +30,8 @@ The installer detects supported agents and links or copies each selected skill i
 
 One semantic version covers the complete suite. A patch release corrects wording or sources, a minor release adds rules, checks, or skills, and a major release removes or renames skills or changes a workflow incompatibly. Individual `SKILL.md` files do not carry separate versions.
 
+Current release: `v0.2.0`.
+
 Read the [changelog](CHANGELOG.md) or watch [GitHub Releases](https://github.com/josemvcerqueira/sui-move-engineering-skills/releases) to learn what changed and whether action is required.
 
 Update every globally installed skill:
@@ -56,8 +58,8 @@ npx skills update sui-move-security -g
 | --- | --- |
 | `sui-move-guide` | Choose the correct skill or complete flow. Invoke it explicitly. |
 | `sui-move-architecture` | On-chain scope, packages, modules, minimal state, authority, abilities, and dependency seams. |
-| `sui-move-source-style` | Sections, imports, names, visibility, signatures, `self` naming, receiver syntax, direct UID access, framework and macro reuse, locals, and API vocabulary. |
-| `sui-move-security` | Fail-fast transitions, capabilities, signatures, replay, bounds, arithmetic, custody, adapters, time, oracles, randomness, and upgrades. |
+| `sui-move-source-style` | Sections, imports, names, visibility, signatures, receiver and index syntax, direct UID access, pinned framework reuse, locals, and API vocabulary. |
+| `sui-move-security` | Invariant preservation, liveness, capabilities, replay, custody, DeFi accounting, adapters, time, oracles, randomness, and upgrades. |
 | `sui-move-events-errors` | Minimal replay-complete events, native metadata, identity, emitters, stable errors, and abort ownership. |
 | `sui-move-testing` | Risk-based tests, exact failures, fixtures, properties, replay, and release gates. |
 | `sui-move-review` | Full review across all five standards. |
@@ -70,6 +72,8 @@ npx skills update sui-move-security -g
 - Unsure: `sui-move-guide`.
 
 Each directory under `skills/` is installer-discoverable. Install the complete set for routing and full reviews, or install one focused standard for a narrow task.
+
+Detailed DeFi and pinned-library procedures ship as bundled references and are loaded only when their subject applies. This keeps ordinary security and source-style tasks smaller without dropping specialized rules.
 
 Project-specific accepted decisions and published ABI take precedence over examples. Do not copy product constants, storage layouts, error numbers, or dependency revisions between protocols without independent review.
 
