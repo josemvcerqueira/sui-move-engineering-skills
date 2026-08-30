@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jose Move Architecture"
+  short_description: "Design secure Move packages and module seams"
+  default_prompt: "Use $jose-move-architecture to design or assess this Move package and module structure."

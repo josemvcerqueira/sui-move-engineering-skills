@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jose Move Review"
+  short_description: "Audit Move code against the full standard"
+  default_prompt: "Use $jose-move-review to audit this Move change against every Jose Move standard."

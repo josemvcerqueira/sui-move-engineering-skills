@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jose Move Security"
+  short_description: "Secure Move authority, state, and economics"
+  default_prompt: "Use $jose-move-security to harden this Move transition, authority, or economic path."

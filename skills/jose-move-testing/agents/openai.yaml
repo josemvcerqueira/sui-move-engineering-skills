@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jose Move Testing"
+  short_description: "Build risk-based Move tests and fixtures"
+  default_prompt: "Use $jose-move-testing to create or review the Move tests and fixture flow for this change."
