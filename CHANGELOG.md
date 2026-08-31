@@ -2,6 +2,30 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.3.2] - 2026-08-31
+
+This patch makes package-upgrade review guidance self-contained and strengthens cross-version security analysis.
+
+### Changed
+
+- Replaced the private Blast implementation links and product-specific recommendation with a complete in-repository stateful-upgrade method.
+- Documented Publisher/OTW selection, validated publish-transaction custody, exact-digest authorization, receipt commit, operational activation, dependency liveness, exits, and required tests without relying on an external codebase.
+- Treats old and new package versions as simultaneously callable adversarial APIs when both can reach the same shared state.
+- Requires old-to-new, new-to-old, and alternating-call analysis for changed function bodies, including reward, fee, stale-witness, retired-state, and cross-version interpretation failures.
+- Makes explicit that a version check added only to new bytecode cannot disable an already-published unguarded mutator.
+- Distinguishes a usable wrapped `UpgradeCap` from a cap made permanently inaccessible by a wrapper with no reachable ticket-authorization, release, or mutable-borrow path.
+- Requires every upgradeable wrapped cap to authorize tickets through the accepted admin, multisig, timelock, governance, or other explicit policy while exposing no generic cap release or mutable borrow.
+
+### Affected skills
+
+- `sui-move-review`
+- `sui-move-security`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the self-contained method and cross-version security checks.
+- No skill name or invocation workflow changed.
+
 ## [0.3.1] - 2026-08-31
 
 This patch restores progressive disclosure for the package-upgrade posture guidance.
