@@ -6,8 +6,8 @@ installed guidance. Promote a pattern only after it has enough independent
 examples, clearly stated applicability and tradeoffs, and evidence that its
 rules generalize beyond one implementation.
 
-Evidence in this file follows the [durable reference policy](reference-policy.md):
-private and third-party observations resolve to local audit notes, while direct
+References in this file follow the [durable reference policy](reference-policy.md):
+local notes are named and written for the reusable pattern, while direct
 framework citations use commit-pinned Sui source.
 
 ## Construct–Attach–Finalize
@@ -200,10 +200,9 @@ The central principle is: validate durable authority once at its canonical
 source, then let downstream operations trust and consume the smallest sealed
 proof of that authorization.
 
-Corroborating evidence: the in-repository
-[`blizzard` pattern audit](research/blizzard-pattern-audit.md#existing-pattern-evidence-phantom-scoped-validateissueconsume)
-documents a drop-only `AdminWitness<T>`, live-ACL sign-in, and revoked-cap
-rejection test.
+Detailed reference: [Validate–Issue–Consume](research/validate-issue-consume.md)
+defines the authorization invariant, witness scope and lifetime, invalidation
+boundary, and required tests without depending on a particular protocol.
 
 ## Bind–Handoff–Redeem
 
@@ -290,9 +289,9 @@ The central principle is: bind an integration before releasing custody, then
 make the resulting asset handoff redeemable only by that integration's sealed
 type within the same PTB.
 
-Evidence: the in-repository
-[`memez-gg` pattern audit](research/memez-gg-pattern-audit.md#add-bindhandoffredeem)
-documents the sealed migrator, adapter redemption, and wrong-witness test.
+Detailed reference: [Bind–Handoff–Redeem](research/bind-handoff-redeem.md)
+defines the linear custody invariant, sealed-adapter boundary, revocation
+semantics, and required tests without depending on a particular integration.
 
 ## Wrap–Wait–Redeem
 
@@ -400,10 +399,10 @@ The central principle is: represent deferred fungibility with the real backing
 asset, then create the fungible liability only when the asset becomes eligible
 to join the pool.
 
-Evidence: the in-repository
-[`blizzard` pattern audit](research/blizzard-pattern-audit.md#add-wrapwaitredeem)
-documents mint-after-voting, the persistent wrapper, live-value redemption,
-and wrong-domain and early-redemption tests.
+Detailed reference: [Wrap–Wait–Redeem](research/wrap-wait-redeem.md)
+defines the pending-versus-pooled accounting boundary, receipt lifecycle,
+domain binding, liveness requirements, and required tests without depending on
+a particular asset or staking system.
 
 ## Consume–Replace–Retire
 
