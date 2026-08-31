@@ -36,6 +36,21 @@ function collectSkillFiles(directory) {
   return files;
 }
 
+function collectMarkdownFiles(directory) {
+  const files = [];
+
+  for (const entry of readdirSync(directory)) {
+    const path = join(directory, entry);
+    if (statSync(path).isDirectory()) {
+      files.push(...collectMarkdownFiles(path));
+    } else if (entry.endsWith(".md")) {
+      files.push(path);
+    }
+  }
+
+  return files;
+}
+
 const packageJson = JSON.parse(
   readFileSync(join(repositoryRoot, "package.json"), "utf8"),
 );
@@ -54,6 +69,17 @@ if (currentChangelogVersion !== packageJson.version) {
 const readme = readFileSync(join(repositoryRoot, "README.md"), "utf8");
 if (!readme.includes(`Current release: \`v${packageJson.version}\`.`)) {
   fail(`README.md does not declare current release v${packageJson.version}`);
+}
+
+for (const markdownFile of collectMarkdownFiles(join(repositoryRoot, "skills"))) {
+  const lines = readFileSync(markdownFile, "utf8").split(/\r?\n/);
+  for (const [index, line] of lines.entries()) {
+    if (/^\s*[-*+]\s+.*;\s+(?:and|or)\s*$/i.test(line)) {
+      fail(
+        `${markdownFile}:${index + 1} ends a list item with an ambiguous conjunction`,
+      );
+    }
+  }
 }
 
 const expectedNames = [];

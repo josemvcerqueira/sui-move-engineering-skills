@@ -11,11 +11,11 @@ Target repository instructions, accepted design records, pinned toolchain behavi
 
 ## Make events replay complete
 
-From package publication onward, every economically relevant mutable fact promised to index must be reconstructible from:
+From package publication onward, every economically relevant mutable fact promised to index must be reconstructible from the following durable sources, alone or in combination:
 
 - native transaction effects and metadata;
 - immutable published bytecode;
-- historical contents of object versions referenced by creation effects, but only when durable archival access is guaranteed; and
+- historical contents of object versions referenced by creation effects, but only when durable archival access is guaranteed;
 - the protocol event stream.
 
 If these sources do not durably provide a required fact, emit the smallest primitive needed to reconstruct it. Before adding an event field, check the available transaction metadata, effects, and object content; do not duplicate a fact merely because it is absent from the inner Move struct.

@@ -11,11 +11,11 @@ Target repository instructions, accepted design records, pinned toolchain behavi
 
 ## Decide what belongs on chain
 
-Put logic or state on chain only when it must:
+Put logic or state on chain only when at least one of these conditions applies:
 
 - authorize, reject, or order a consensus-critical transition;
 - custody, allocate, conserve, mint, burn, or settle assets;
-- provide a synchronous result for trustless contract composition; or
+- provide a synchronous result for trustless contract composition;
 - commit the smallest primitive fact required for independent reconstruction.
 
 Keep deterministic projections, formatting, aggregation, previews, transaction construction, and convenience reads off chain. A transition can recompute a derived value internally when it must enforce fees, slippage, bounds, conservation, or another invariant.

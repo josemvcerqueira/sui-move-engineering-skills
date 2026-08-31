@@ -2,6 +2,26 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.2.1] - 2026-08-30
+
+This patch removes ambiguous prose conjunctions from bulleted decision and source lists.
+
+### Changed
+
+- Stated explicitly that any one on-chain placement condition is sufficient, then removed the trailing `or` from the list.
+- Clarified that event reconstruction may use the listed durable sources alone or in combination, then removed the trailing `and` from the list.
+- Added release validation to reject skill Markdown bullets ending in `; and` or `; or`.
+
+### Affected skills
+
+- `sui-move-architecture`
+- `sui-move-events-errors`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the clarified wording.
+- No skill behavior, name, or invocation workflow changed.
+
 ## [0.2.0] - 2026-08-30
 
 This release expands the suite's Sui-specific architecture, upgrade, event, source-style, testing, and DeFi security guidance while reducing the context loaded for unrelated tasks.
