@@ -397,3 +397,126 @@ Evidence: Blizzard's
 [`successful live-value redemption test`](https://github.com/interest-protocol/blizzard/blob/a1e5f7e910a1fd811ed0b537804e786b5788c7e2/blizzard/tests/protocol.move#L570-L699),
 and
 [`wrong-domain and early-redemption tests`](https://github.com/interest-protocol/blizzard/blob/a1e5f7e910a1fd811ed0b537804e786b5788c7e2/blizzard/tests/protocol.move#L1759-L1843).
+
+## Consume–Replace–Retire
+
+**Status:** Candidate
+
+### Emergency shared-object type migration
+
+When an already-published shared object has a dangerous old mutator and no
+version, pause, or revocable required-capability seam observed by every old
+path, a code-only upgrade cannot retire the vulnerable bytecode. Add a distinct
+replacement type, atomically move the live state into it, and consume the old
+shared object so the old function no longer has an input it can accept.
+
+This simplified sketch assumes the original package already has an `AdminCap`
+bound to `State` and that `ProtocolData` contains the state that must survive:
+
+```move
+const VERSION: u64 = 2;
+const ENotAdmin: u64 = 0;
+
+public struct State has key {
+    id: UID,
+    data: ProtocolData,
+}
+
+public struct StateV2 has key {
+    id: UID,
+    version: u64,
+    data: ProtocolData,
+}
+
+public struct AdminCap has key {
+    id: UID,
+    state_id: ID,
+}
+
+public struct StateMigrated has copy, drop {
+    old_state_id: ID,
+    new_state_id: ID,
+}
+
+entry fun migrate(
+    state: State,
+    admin: &mut AdminCap,
+    ctx: &mut TxContext,
+) {
+    let old_state_id = object::id(&state);
+    assert!(admin.state_id == old_state_id, ENotAdmin);
+
+    let State { id, data } = state;
+    id.delete();
+
+    let state_v2 = StateV2 {
+        id: object::new(ctx),
+        version: VERSION,
+        data,
+    };
+    let new_state_id = object::id(&state_v2);
+    admin.state_id = new_state_id;
+
+    event::emit(StateMigrated { old_state_id, new_state_id });
+    transfer::share_object(state_v2);
+}
+```
+
+Rules:
+
+- Use this only when old bytecode must be made unusable against live shared
+  state. If old calls remain harmless, changing the latest implementation can
+  be sufficient. If an old version gate, pause flag, or required capability can
+  already disable every dangerous call, use that seam instead.
+- Add a distinct type such as `StateV2`. Deleting the original object and
+  creating another `State` does not isolate the replacement because old package
+  functions can accept any live object of the original type.
+- Preserve the original datatype layout and every existing public function
+  signature. Add the migration in the module that can destructure `State`, or
+  use an existing safe extraction seam.
+- Authorize migration with an authority that already exists or can be proven
+  against the exact package lineage, such as the accepted `AdminCap`, governance
+  authority, or validated `UpgradeCap`. A freely callable setup function turns
+  migration into an asset-seizure path.
+- Take the old shared state by value, unpack it once, move its contents, and
+  delete its UID in the same successful transaction. Do not delete first and
+  attempt to recover data later.
+- Give the replacement a fresh UID. A shared object must be newly created in
+  the transaction that shares it, so the old UID cannot simply become the new
+  shared object's identity.
+- Inventory every balance, supply fact, capability, child object, collection,
+  and direct dynamic field. Direct dynamic fields attached to the old UID do
+  not follow the fresh UID; remove, migrate, or deliberately retire them.
+- If an existing `public fun mint(&mut State, ...)` cannot change signature,
+  retain it for compatibility and add `mint_v2`, or add a new module whose
+  `mint` accepts `StateV2`. A non-public `entry fun` can change signature under
+  compatible policy, but its old package version remains callable until
+  `State` is consumed.
+- Emit an old-ID-to-new-ID migration event and update dependent packages,
+  clients, indexers, caches, and operators that pin the old package generation,
+  state type, or object ID.
+- Treat the package upgrade and replacement-state setup as separate
+  transactions. Until migration consumes `State`, old bytecode can still reach
+  it. Use any pre-existing pause seam and minimize and monitor this exposure
+  window; record the residual race when no seam can close it.
+- Test authorized migration, wrong authority, wrong state ID, repeated
+  migration, rollback on a failed move, exact asset and accounting
+  reconciliation, dynamic-field handling, old-state deletion, old-function
+  rejection of `StateV2`, and liveness of every required exit.
+
+Under the stated assumptions, this is the only generic safe recovery: make the
+dangerous old input cease to exist and put live state behind a type the old
+bytecode does not recognize. If the migration cannot be authorized, cannot
+reach all required state, or cannot retire the old input before further harm,
+the old-version risk remains unresolved.
+
+The central principle is: when old immutable code cannot be gated, retire its
+input type and move the protocol to a fresh type boundary.
+
+Evidence: Sui's upgrade guide describes adding a new type and migration
+function for a flawed shared object, including separate upgrade and setup
+transactions and protected setup authority
+([migrating users to the latest version](https://docs.sui.io/develop/publish-upgrade-packages/upgrade#migrating-users-to-the-latest-version)).
+The framework requires a shared object to be newly created in the transaction
+that shares it
+([`transfer::share_object`](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/docs/sui/transfer.md#function-share_object)).
