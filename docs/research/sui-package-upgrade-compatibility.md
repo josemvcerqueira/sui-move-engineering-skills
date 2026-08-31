@@ -1,5 +1,10 @@
 # Sui package-upgrade compatibility and event ABI rules
 
+This note is the durable repository record for package-upgrade rules. Sui Docs
+pages used during research are summarized here instead of linked, under the
+[reference policy](../reference-policy.md); direct evidence links point to the
+audited commit of Sui source.
+
 ## Scope and conclusion
 
 This note checks Sui's current user-package upgrade rules against first-party documentation and implementation source. The source snapshot used for implementation details is MystenLabs/Sui commit [`60f0e8a6abb0523d5c9c7f5edc006f40d8dead03`](https://github.com/MystenLabs/sui/tree/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03).
@@ -8,7 +13,7 @@ The key conclusion is that an existing event payload is an existing Move datatyp
 
 ## Upgrade-policy matrix
 
-Sui orders its built-in policies from strictest to loosest as immutable, dependency-only, additive, and compatible. The default is compatible, and an `UpgradeCap` can only move to a more restrictive policy ([Sui custom upgrade policies](https://docs.sui.io/develop/publish-upgrade-packages/custom-policies#compatibility)).
+Sui orders its built-in policies from strictest to loosest as immutable, dependency-only, additive, and compatible. The default is compatible, and an `UpgradeCap` can only move to a more restrictive policy (Sui custom upgrade policies).
 
 | Change | Compatible | Additive | Dependency-only |
 | --- | --- | --- | --- |
@@ -20,11 +25,11 @@ Sui orders its built-in policies from strictest to loosest as immutable, depende
 | Change existing datatype layout, abilities, or type parameters | No | No | No |
 | Change dependencies | Yes | Yes | Yes |
 
-The docs summarize compatible upgrades as allowing function-body changes, relaxed generic ability constraints, and changes to non-public functions while preserving existing public signatures and types ([Sui custom upgrade policies](https://docs.sui.io/develop/publish-upgrade-packages/custom-policies#compatibility)). The execution path applies the compatibility checker for compatible upgrades, a code-and-declaration subset check for additive upgrades, and exact module inclusion for dependency-only upgrades; it separately rejects a module-count change under dependency-only policy ([Sui upgrade execution](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/sui-execution/latest/sui-adapter/src/static_programmable_transactions/execution/context.rs#L2537-L2612)).
+The docs summarize compatible upgrades as allowing function-body changes, relaxed generic ability constraints, and changes to non-public functions while preserving existing public signatures and types (Sui custom upgrade policies). The execution path applies the compatibility checker for compatible upgrades, a code-and-declaration subset check for additive upgrades, and exact module inclusion for dependency-only upgrades; it separately rejects a module-count change under dependency-only policy ([Sui upgrade execution](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/sui-execution/latest/sui-adapter/src/static_programmable_transactions/execution/context.rs#L2537-L2612)).
 
 ## Existing datatypes are layout-frozen
 
-The upgrade guide states that existing struct layouts, including abilities, must remain the same, while new structs and functions may be added ([Sui upgrade requirements](https://docs.sui.io/develop/publish-upgrade-packages/upgrade#upgrade-requirements)). The userspace checker enforces the stronger exact consequences:
+The upgrade guide states that existing struct layouts, including abilities, must remain the same, while new structs and functions may be added (Sui upgrade requirements). The userspace checker enforces the stronger exact consequences:
 
 - Every existing struct and enum must still exist.
 - Existing struct fields must match; the normalized comparison covers ordered field names and types.
@@ -38,7 +43,7 @@ Therefore, changing an object's or event payload's fixed layout requires a new d
 
 ## Public functions and new declarations
 
-Under compatible policy, an existing public function cannot be removed, lose public visibility, or change its parameters, return values, or type-parameter arity. Generic ability constraints may be relaxed because that preserves old callers. Private, `public(friend)`, and non-public `entry` functions may change, disappear, or become public ([Sui policy documentation](https://docs.sui.io/develop/publish-upgrade-packages/custom-policies#compatibility), [function compatibility checks](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/external-crates/move/crates/move-binary-format/src/compatibility.rs#L226-L345)). A `public entry` function remains subject to the public-signature restriction even though its `entry` modifier may be changed.
+Under compatible policy, an existing public function cannot be removed, lose public visibility, or change its parameters, return values, or type-parameter arity. Generic ability constraints may be relaxed because that preserves old callers. Private, `public(friend)`, and non-public `entry` functions may change, disappear, or become public (Sui policy documentation, [function compatibility checks](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/external-crates/move/crates/move-binary-format/src/compatibility.rs#L226-L345)). A `public entry` function remains subject to the public-signature restriction even though its `entry` modifier may be changed.
 
 Compatible and additive upgrades can introduce new functions, datatypes, and modules. Dependency-only upgrades cannot: their existing modules must be exactly included and the package cannot gain or lose a module ([Sui upgrade execution](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/sui-execution/latest/sui-adapter/src/static_programmable_transactions/execution/context.rs#L2560-L2612)).
 
@@ -63,9 +68,20 @@ A precise reusable rule is:
 
 ## Old versions, initialization, and migration
 
-Package versions are immutable. Old packages cannot be deleted, remain callable, and users can keep calling them unless protocol state enforces a version gate. An upgraded dependency is not adopted automatically; a dependent package must itself be upgraded to point to the new version. The current upgrade guide also states that module initializers do not rerun during package upgrades ([Sui upgrade considerations](https://docs.sui.io/develop/publish-upgrade-packages/upgrade#upgrade-considerations)).
+Package versions are immutable. Old packages cannot be deleted, remain callable, and users can keep calling them unless protocol state enforces a version gate. An upgraded dependency is not adopted automatically; a dependent package must itself be upgraded to point to the new version. The current upgrade guide also states that module initializers do not rerun during package upgrades (Sui upgrade considerations).
 
-Consequently, implementation fixes or newly emitted events do not automatically govern old entry points. Sui's guide recommends version checks on shared state and explicit, authorized migrations when old and new callers must not coexist ([migrating users to the latest version](https://docs.sui.io/develop/publish-upgrade-packages/upgrade#migrating-users-to-the-latest-version)). A layout change similarly needs a newly introduced type and a conversion or migration function; the existing type cannot be edited in place.
+Consequently, implementation fixes or newly emitted events do not automatically govern old entry points. Sui's guide recommends version checks on shared state and explicit, authorized migrations when old and new callers must not coexist (migrating users to the latest version). A layout change similarly needs a newly introduced type and a conversion or migration function; the existing type cannot be edited in place.
+
+For a flawed shared object published without a usable old-code gate, the
+documented recovery is to add a distinct replacement type and an authorized
+migration function. The package upgrade and replacement-state setup are
+separate transactions, and the setup must be protected by an existing
+`AdminCap` or another authority the protocol can validate. The migration
+consumes or otherwise retires the old input type; creating another instance of
+the same type would leave it callable by old bytecode. A replacement shared
+object also needs a fresh UID because `transfer::share_object` requires the
+object to be newly created in the transaction that shares it
+([`transfer.move`](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/crates/sui-framework/packages/sui-framework/sources/transfer.move#L97-L108)).
 
 ## Current-versus-historical caveat
 

@@ -40,6 +40,8 @@ function collectMarkdownFiles(directory) {
   const files = [];
 
   for (const entry of readdirSync(directory)) {
+    if (entry === ".git" || entry === "node_modules") continue;
+
     const path = join(directory, entry);
     if (statSync(path).isDirectory()) {
       files.push(...collectMarkdownFiles(path));
@@ -49,6 +51,36 @@ function collectMarkdownFiles(directory) {
   }
 
   return files;
+}
+
+const headingAnchorCache = new Map();
+function markdownHeadingAnchors(markdownFile) {
+  if (headingAnchorCache.has(markdownFile)) {
+    return headingAnchorCache.get(markdownFile);
+  }
+
+  const anchors = new Set();
+  const counts = new Map();
+  const lines = readFileSync(markdownFile, "utf8").split(/\r?\n/);
+
+  for (const line of lines) {
+    const heading = line.match(/^#{1,6}\s+(.+?)\s*#*\s*$/)?.[1];
+    if (!heading) continue;
+
+    const base = heading
+      .replace(/<[^>]*>/g, "")
+      .replace(/[`*_~]/g, "")
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s-]/gu, "")
+      .trim()
+      .replace(/\s+/g, "-");
+    const count = counts.get(base) ?? 0;
+    anchors.add(count === 0 ? base : `${base}-${count}`);
+    counts.set(base, count + 1);
+  }
+
+  headingAnchorCache.set(markdownFile, anchors);
+  return anchors;
 }
 
 const packageJson = JSON.parse(
@@ -71,7 +103,51 @@ if (!readme.includes(`Current release: \`v${packageJson.version}\`.`)) {
   fail(`README.md does not declare current release v${packageJson.version}`);
 }
 
-for (const markdownFile of collectMarkdownFiles(join(repositoryRoot, "skills"))) {
+const markdownFiles = collectMarkdownFiles(repositoryRoot);
+const pinnedSuiSource =
+  /^https:\/\/github\.com\/MystenLabs\/sui\/(?:blob\/[0-9a-f]{40}\/(?!docs\/)[^\s)]+|tree\/[0-9a-f]{40}(?:\/(?!docs\/)[^\s)]*)?)$/;
+
+for (const markdownFile of markdownFiles) {
+  const contents = readFileSync(markdownFile, "utf8");
+
+  for (const match of contents.matchAll(/https?:\/\/[^\s)<>'"`]+/g)) {
+    const target = match[0];
+    if (!pinnedSuiSource.test(target)) {
+      fail(`${markdownFile} contains disallowed external reference ${target}`);
+    }
+  }
+
+  for (const match of contents.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+    const rawTarget = match[1].replace(/^<|>$/g, "");
+    if (!rawTarget || rawTarget.startsWith("#")) continue;
+    if (/^https?:\/\//.test(rawTarget)) continue;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(rawTarget)) {
+      fail(`${markdownFile} contains disallowed reference scheme ${rawTarget}`);
+      continue;
+    }
+
+    const [targetWithQuery, fragment] = rawTarget.split("#", 2);
+    const target = targetWithQuery.split("?", 1)[0];
+    const resolvedTarget = target
+      ? resolve(dirname(markdownFile), target)
+      : markdownFile;
+    if (target && !existsSync(resolvedTarget)) {
+      fail(`${markdownFile} links to missing local file ${target}`);
+      continue;
+    }
+    if (
+      fragment &&
+      resolvedTarget.endsWith(".md") &&
+      !markdownHeadingAnchors(resolvedTarget).has(decodeURIComponent(fragment))
+    ) {
+      fail(`${markdownFile} links to missing anchor ${fragment} in ${target}`);
+    }
+  }
+}
+
+for (const markdownFile of markdownFiles.filter((file) =>
+  file.startsWith(join(repositoryRoot, "skills")),
+)) {
   const lines = readFileSync(markdownFile, "utf8").split(/\r?\n/);
   for (const [index, line] of lines.entries()) {
     if (/^\s*[-*+]\s+.*;\s+(?:and|or)\s*$/i.test(line)) {

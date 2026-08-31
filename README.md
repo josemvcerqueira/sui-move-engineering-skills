@@ -32,7 +32,7 @@ One semantic version covers the complete suite. A patch release corrects wording
 
 Current release: `v0.3.2`.
 
-Read the [changelog](CHANGELOG.md) or watch [GitHub Releases](https://github.com/josemvcerqueira/sui-move-engineering-skills/releases) to learn what changed and whether action is required.
+Read the [changelog](CHANGELOG.md) to learn what changed and whether action is required.
 
 Update every globally installed skill:
 
@@ -76,6 +76,8 @@ Each directory under `skills/` is installer-discoverable. Install the complete s
 Detailed DeFi and pinned-library procedures ship as bundled references and are loaded only when their subject applies. This keeps ordinary security and source-style tasks smaller without dropping specialized rules.
 
 Project-specific accepted decisions and published ABI take precedence over examples. Do not copy product constants, storage layouts, error numbers, or dependency revisions between protocols without independent review.
+
+Repository guidance follows the [durable reference policy](docs/reference-policy.md): references stay inside this repository except for full-commit-pinned `MystenLabs/sui` source links.
 
 ## License
 

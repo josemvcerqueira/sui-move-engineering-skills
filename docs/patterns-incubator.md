@@ -6,6 +6,10 @@ installed guidance. Promote a pattern only after it has enough independent
 examples, clearly stated applicability and tradeoffs, and evidence that its
 rules generalize beyond one implementation.
 
+Evidence in this file follows the [durable reference policy](reference-policy.md):
+private and third-party observations resolve to local audit notes, while direct
+framework citations use commit-pinned Sui source.
+
 ## Construct–Attach–Finalize
 
 **Status:** Candidate
@@ -24,20 +28,27 @@ admin.share();
 
 Rules:
 
-- `new` validates fixed identity inputs and returns an unshared, key-only
-  object.
-- Each `add_*` function performs one authorized attachment.
+- `new` validates fixed identity inputs and returns either the unshared,
+  key-only target object or a no-ability initializer that contains it.
+- Each `add_*` or configuration function performs one authorized attachment or
+  transition on the incomplete value.
 - Use `dynamic_object_field` for child objects with `UID`.
 - Key generic children by their exact type and reject duplicate occupancy.
-- `share` or `freeze` verifies all mandatory children, then performs the
-  irreversible transition.
-- The intermediate object must not have `store` or `drop`, so it cannot escape
-  incomplete.
+- `share`, `freeze`, or `finalize` verifies all mandatory children, consumes any
+  initializer wrapper, then performs the irreversible transition.
+- The incomplete target or its initializer wrapper must not have `store` or
+  `drop`, so incomplete construction cannot escape. A wrapper should have no
+  abilities when the caller must be forced to finalize it.
 - A one-shot helper may compose these primitives, but must not duplicate their
   logic.
 
 The central principle is: keep functions single-purpose and keep every
 pre-finalization step composable within one PTB.
+
+First-party evidence: Sui's no-ability `CurrencyInitializer<T>` wraps an
+incomplete `Currency<T>`, supports regulated and supply-model configuration,
+and is consumed by `finalize` before the currency is transferred or shared
+([`coin_registry.move`](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/crates/sui-framework/packages/sui-framework/sources/registries/coin_registry.move#L160-L345)).
 
 ## Store–Probe–Recover
 
@@ -113,7 +124,7 @@ caller's static access to the value, proves that the stored value already has a
 specific runtime type, and then recovers it as that type.
 
 Reference: Sui Framework
-[`dynamic_object_field`](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/docs/sui/dynamic_object_field.md).
+[`dynamic_object_field`](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/crates/sui-framework/packages/sui-framework/sources/dynamic_object_field.move).
 
 ## Validate–Issue–Consume
 
@@ -189,10 +200,10 @@ The central principle is: validate durable authority once at its canonical
 source, then let downstream operations trust and consume the smallest sealed
 proof of that authorization.
 
-Corroborating evidence: Blizzard's drop-only
-[`AdminWitness<T>` and live-ACL `sign_in`](https://github.com/interest-protocol/blizzard/blob/a1e5f7e910a1fd811ed0b537804e786b5788c7e2/blizzard/sources/lib/acl.move#L17-L75),
-including its
-[`revoked-cap rejection test`](https://github.com/interest-protocol/blizzard/blob/a1e5f7e910a1fd811ed0b537804e786b5788c7e2/blizzard/tests/lib/acl.move#L197-L215).
+Corroborating evidence: the in-repository
+[`blizzard` pattern audit](research/blizzard-pattern-audit.md#existing-pattern-evidence-phantom-scoped-validateissueconsume)
+documents a drop-only `AdminWitness<T>`, live-ACL sign-in, and revoked-cap
+rejection test.
 
 ## Bind–Handoff–Redeem
 
@@ -279,11 +290,9 @@ The central principle is: bind an integration before releasing custody, then
 make the resulting asset handoff redeemable only by that integration's sealed
 type within the same PTB.
 
-Evidence: `memez-gg`'s
-[`MemezMigrator`](https://github.com/interest-protocol/memez-gg/blob/00596fdac4dd11f427c7bc594e566ce36160db93/fun/sources/memez_fun.move#L48-L87),
-[`xPump` adapter](https://github.com/interest-protocol/memez-gg/blob/00596fdac4dd11f427c7bc594e566ce36160db93/migrators/xpump/sources/xpump.move#L177-L194),
-and
-[`wrong-witness` test](https://github.com/interest-protocol/memez-gg/blob/00596fdac4dd11f427c7bc594e566ce36160db93/fun/tests/memez_fun.move#L428-L461).
+Evidence: the in-repository
+[`memez-gg` pattern audit](research/memez-gg-pattern-audit.md#add-bindhandoffredeem)
+documents the sealed migrator, adapter redemption, and wrong-witness test.
 
 ## Wrap–Wait–Redeem
 
@@ -391,12 +400,10 @@ The central principle is: represent deferred fungibility with the real backing
 asset, then create the fungible liability only when the asset becomes eligible
 to join the pool.
 
-Evidence: Blizzard's
-[`mint-after-voting` and redemption flow](https://github.com/interest-protocol/blizzard/blob/a1e5f7e910a1fd811ed0b537804e786b5788c7e2/blizzard/sources/inner_protocol.move#L143-L227),
-[`BlizzardStakeNFT` wrapper, type binding, split, and join](https://github.com/interest-protocol/blizzard/blob/a1e5f7e910a1fd811ed0b537804e786b5788c7e2/blizzard/sources/stake_nft.move#L13-L127),
-[`successful live-value redemption test`](https://github.com/interest-protocol/blizzard/blob/a1e5f7e910a1fd811ed0b537804e786b5788c7e2/blizzard/tests/protocol.move#L570-L699),
-and
-[`wrong-domain and early-redemption tests`](https://github.com/interest-protocol/blizzard/blob/a1e5f7e910a1fd811ed0b537804e786b5788c7e2/blizzard/tests/protocol.move#L1759-L1843).
+Evidence: the in-repository
+[`blizzard` pattern audit](research/blizzard-pattern-audit.md#add-wrapwaitredeem)
+documents mint-after-voting, the persistent wrapper, live-value redemption,
+and wrong-domain and early-redemption tests.
 
 ## Consume–Replace–Retire
 
@@ -513,10 +520,10 @@ the old-version risk remains unresolved.
 The central principle is: when old immutable code cannot be gated, retire its
 input type and move the protocol to a fresh type boundary.
 
-Evidence: Sui's upgrade guide describes adding a new type and migration
-function for a flawed shared object, including separate upgrade and setup
-transactions and protected setup authority
-([migrating users to the latest version](https://docs.sui.io/develop/publish-upgrade-packages/upgrade#migrating-users-to-the-latest-version)).
+Evidence: the in-repository
+[package-upgrade compatibility note](research/sui-package-upgrade-compatibility.md#old-versions-initialization-and-migration)
+records the new-type migration rule, separate upgrade and setup transactions,
+and protected setup authority.
 The framework requires a shared object to be newly created in the transaction
 that shares it
-([`transfer::share_object`](https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/docs/sui/transfer.md#function-share_object)).
+([`transfer.move`](https://github.com/MystenLabs/sui/blob/60f0e8a6abb0523d5c9c7f5edc006f40d8dead03/crates/sui-framework/packages/sui-framework/sources/transfer.move#L97-L108)).
