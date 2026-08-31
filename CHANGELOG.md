@@ -2,6 +2,30 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.3.0] - 2026-08-31
+
+This release makes package upgrade posture an explicit part of full Sui Move reviews.
+
+### Added
+
+- A package-upgrade posture reference that distinguishes intentionally immutable, simple upgradeable, and evolving shared-state packages.
+- Conditional guidance for `Publisher` claims, `UpgradeCap` custody, operational version gates, immutable-release evidence, and already-published limitations.
+- The pinned Blast V2 capability-custody and operational-cutover implementation as the concrete reference for matching stateful protocols.
+
+### Changed
+
+- Full package and release reviews now establish publication status and classify upgrade posture before reporting missing upgrade machinery as a defect.
+- Review findings must avoid imposing package administration or version state on immutable or simple packages without a concrete risk or accepted roadmap requirement.
+
+### Affected skills
+
+- `sui-move-review`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the new review rule and bundled reference.
+- No skill was renamed or removed, and no invocation workflow is incompatible.
+
 ## [0.2.1] - 2026-08-30
 
 This patch removes ambiguous prose conjunctions from bulleted decision and source lists.

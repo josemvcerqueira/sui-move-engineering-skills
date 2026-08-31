@@ -1,6 +1,6 @@
 {
   "name": "sui-move-engineering-skills",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "description": "Reusable Sui Move engineering skills for AI coding agents",
   "license": "MIT",
