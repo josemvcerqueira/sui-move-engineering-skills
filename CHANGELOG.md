@@ -2,6 +2,24 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.3.1] - 2026-08-31
+
+This patch restores progressive disclosure for the package-upgrade posture guidance.
+
+### Changed
+
+- Load the detailed upgrade-posture reference only when publication, deployment, upgrades, immutability, package-capability custody, operational versioning, or uncertain classification makes it relevant.
+- Keep the three-posture classification in the core review workflow so ordinary reviews retain the decision without always loading the detailed reference.
+
+### Affected skills
+
+- `sui-move-review`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the corrected loading rule.
+- No review requirement or invocation workflow changed.
+
 ## [0.3.0] - 2026-08-31
 
 This release makes package upgrade posture an explicit part of full Sui Move reviews.

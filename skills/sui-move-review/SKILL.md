@@ -17,7 +17,7 @@ Read these sibling skills completely before reviewing:
 4. [sui-move-events-errors](../sui-move-events-errors/SKILL.md)
 5. [sui-move-testing](../sui-move-testing/SKILL.md)
 
-For every package or release review, also read [Package upgrade posture](references/package-upgrade-posture.md) completely. Use it before treating missing `Publisher` custody, wrapped `UpgradeCap` custody, or operational versioning as a defect.
+Read [Package upgrade posture](references/package-upgrade-posture.md) completely when the target is unpublished or the review concerns publication, deployment, upgrades, immutability claims, package-capability custody, or operational versioning. Also read it when the evidence does not establish one of the three postures. Otherwise apply the classification in step 2 without loading the reference.
 
 Read the target repository instructions, package manifest, relevant design records, implementation, tests, and structural gates. Treat reference repositories as evidence, not authority over the target's accepted protocol decisions.
 
