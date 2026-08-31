@@ -8,7 +8,11 @@ Sui source.
 
 ## Scope and conclusion
 
-This audit compares the seven current `SKILL.md` files with primary, first-party security guidance from Solidity, OpenZeppelin, Ethereum standards, Mysten/Sui framework source, the Move language reference, and (for oracle integration only) Pyth's own integration guidance.
+This audit compares the seven `SKILL.md` files that existed when it was
+performed with primary, first-party security guidance from Solidity,
+OpenZeppelin, Ethereum standards, Mysten/Sui framework source, the Move
+language reference, and (for oracle integration only) Pyth's own integration
+guidance.
 
 The baseline standard was already stronger than a generic checks-effects-interactions checklist. It explicitly ordered guards, computed and validated proposed final values before mutation, used typed authority, bounded state and work, reconciled assets, isolated adapters, locked callback-capable handoffs, scoped pauses, operationally gated Sui upgrades, and required adversarial/property tests. The smallest useful changes were therefore narrow: account for dependency linkage during cutovers; add oracle freshness and adversarial-selection rules; make signed actions safe under third-party submission; document asset admission assumptions; prove authority-destruction liveness; and add Sui randomness/composition safety. The working tree implements all six. Most EVM proxy and ERC-20 prescriptions should not be imported.
 

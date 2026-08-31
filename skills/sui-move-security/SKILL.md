@@ -11,9 +11,24 @@ Target repository instructions, accepted design records, pinned toolchain behavi
 
 Before code, name the assets and safety, conservation, liveness, and exit invariants; authorities and worst-case compromise; untrusted callers, composition, and dependencies; and required failure behavior.
 
-For each public or entry function, same-PTB composition, and reachable multi-transaction sequence, prove that a valid pre-state produces a valid post-state, an abort commits no partial effects, and returned objects, capabilities, witnesses, receipts, or other values cannot be recombined to violate an invariant. Security is not established until every callable path and composition preserves the package's safety, conservation, authority, liveness, and exit invariants.
+For each public or entry function, same-PTB composition, and reachable
+multi-transaction sequence, prove all three properties:
 
-Before any irreversible or state-gating transition, prove that every required exit, settlement, cleanup, retry, cancellation, authority rotation, and recovery operation remains reachable. Reject a transition that can leave shared state permanently paused, locked, full, orphaned, version-incompatible, or dependent on an unavailable capability, object, or external system, unless it is a deliberate terminal state with all obligations already discharged.
+- A valid pre-state produces a valid post-state.
+- An abort commits no partial effects.
+- Returned objects, capabilities, witnesses, receipts, and other values cannot
+  be recombined to violate an invariant.
+
+Security is not established until every callable path and composition preserves
+the package's safety, conservation, authority, liveness, and exit invariants.
+
+Before any irreversible or state-gating transition, prove that every required
+exit, settlement, cleanup, retry, cancellation, authority rotation, and
+recovery operation remains reachable. Reject a transition that can leave
+shared state permanently paused, locked, full, orphaned, version-incompatible,
+or dependent on an unavailable capability, object, or external system. Permit
+that outcome only for a deliberate terminal state with every obligation already
+discharged.
 
 ## Fail fast and mutate last
 
@@ -29,7 +44,18 @@ Abort on the cheapest decisive condition. Exhaust checks available from current 
 8. emit the final-state event;
 9. return owned values.
 
-The numbered order applies when dependency calls are read-only or can be last. A result-bearing composable handoff is a deliberate exception: finish every local check, acquire the narrowest lock or issue a linear receipt, interact, validate exact receipts and balance deltas, commit core state and asset movements, clear the lock, then emit. Do not postpone a check that could have preceded an effect or interaction.
+The numbered order applies when dependency calls are read-only or can be last.
+A result-bearing composable handoff is a deliberate exception. Use this order:
+
+1. finish every local check;
+2. acquire the narrowest lock or issue a linear receipt;
+3. interact;
+4. validate exact receipts and balance deltas;
+5. commit core state and asset movements;
+6. clear the lock;
+7. emit.
+
+Do not postpone a check that could have preceded an effect or interaction.
 
 Guard order is observable API. Test overlapping invalid conditions. Abort rollback does not justify avoidable late checks: early failure saves gas, preserves diagnostic precedence, and shrinks the reasoning surface.
 
@@ -43,12 +69,19 @@ Reject a setter whose new value equals the current value before mutation, with i
 - Let the concern-owning module validate that witness locally.
 - Keep a global cap minimal. Store target IDs only in a deliberately per-instance cap.
 - Separate root authority from routine administration.
-- Use delayed, explicit, test-covered root rotation. Add cancellation or recipient acceptance when the threat model requires it. Before burning, renouncing, or irreversibly handing off the last root or upgrade authority, prove successor usability and required exit and recovery liveness.
+- Use delayed, explicit, test-covered root rotation.
+- Add cancellation or recipient acceptance when the threat model requires it.
+- Before burning, renouncing, or irreversibly handing off the last root or
+  upgrade authority, prove successor usability and required exit and recovery
+  liveness.
 - Never infer broad authority from unrelated object possession or transaction sender alone.
 - Do not pass overlapping capabilities to one setter or transition.
 - Give capability holders a production lifecycle for safe destruction or revocation when stranded objects are possible.
 - Reject zero addresses for recipients and authorities unless the zero address has an explicit protocol meaning.
-- For a permissionless irreversible transition, take economic parameters from accepted stored policy, derived state, a sealed adapter type, or a compiled value that is itself the accepted immutable policy, never from caller choice. Otherwise fail closed.
+- For a permissionless irreversible transition, never take economic parameters
+  from caller choice. Derive them from accepted stored policy, derived state, a sealed
+  adapter type, or a compiled value that is itself the accepted immutable
+  policy. Otherwise fail closed.
 
 ## If the contract verifies off-chain signatures
 
@@ -82,11 +115,23 @@ Reject a setter whose new value equals the current value before mutation, with i
 - Use the canonical immutable `Clock` for near-real-time security decisions. Define units and inclusive or exclusive deadline semantics, and reject stale or impossible future timestamps where relevant; epoch-start time is only a coarse source.
 - When execution can change between signing and inclusion, bind the transition to user- or signer-approved maximum input, minimum output, and deadline. Never assume favorable transaction ordering.
 - Before economic use, validate oracle source and feed identity, original type, pair, units or exponent, valid range, update time and freshness, confidence or deviation, liquidity assumptions, and whether a caller can select among historical updates. Define fail-closed or bounded fallback behavior.
-- Never derive economic randomness from object IDs, sender, `Clock`, or transaction data. For `sui::random`, keep the economic endpoint private `entry`, create `RandomGenerator` inside the consuming module, obey post-random PTB restrictions, balance resource use across outcomes, and use commit-reveal with inputs fixed before reveal when atomic abort selection remains unsafe.
+- Never derive economic randomness from object IDs, sender, `Clock`, or
+  transaction data.
+- For `sui::random`:
+  - keep the economic endpoint private `entry`;
+  - create `RandomGenerator` inside the consuming module;
+  - obey post-random PTB restrictions;
+  - balance resource use across outcomes;
+  - use commit-reveal with inputs fixed before reveal when atomic abort
+    selection remains unsafe.
 
 ## Load DeFi guidance when applicable
 
-For shares, vaults, liquid staking, farms, rewards, AMMs, lending, liquidations, or other DeFi accounting, read [DeFi security](references/defi-security.md) completely before designing, changing, or reviewing the transition. Apply it with this skill's invariant, fail-fast, custody, oracle, and external-seam rules.
+For shares, vaults, liquid staking, farms, rewards, AMMs, lending,
+liquidations, or other DeFi accounting, read
+[DeFi security](references/defi-security.md) completely before designing,
+changing, or reviewing the transition. Apply it with this skill's invariant,
+fail-fast, custody, oracle, and external-seam rules.
 
 ## Preserve conservation and custody
 
@@ -97,7 +142,12 @@ assets in = assets out + reserves + accrued fees + pending custody + explicitly 
 ```
 
 - Keep reserves, fees, pending burns, allocations, residuals, and claims separate when their owner or terminal treatment differs.
-- For every admitted asset, document original type, mint and supply authority, deny, pause, or action restrictions, units, and the authoritative balance delta. Reject assets whose controls can break mandatory settlement or exit invariants unless an accepted admission decision records and bounds that risk explicitly.
+- For every admitted asset, document its original type, mint and supply
+  authority, deny, pause, or action restrictions, units, and authoritative
+  balance delta.
+- Reject an asset whose controls can break mandatory settlement or exit
+  invariants unless an accepted admission decision records and bounds that risk
+  explicitly.
 - Use actual balances as authority, never event-only counters or SDK previews.
 - Reconcile after every operation and multi-operation sequence.
 - Make burn, disposal, refund, fee, residual, and rounding treatment explicit.
@@ -113,23 +163,22 @@ assets in = assets out + reserves + accrued fees + pending custody + explicitly 
 - Do not support an external venue whose required payment or custody model violates core invariants.
 - Verify deployed bytecode and ABI; a local link stub proves type compatibility only.
 
-## Define pause, version, and upgrade behavior
+## Define pause behavior
 
-- Define pause scope exactly and preserve user exits and mandatory settlement unless explicitly rejected by the design. Emergency authority may reduce risk, not seize, reprice, or rewrite user accounting.
-- Model an upgrade as publication of a new immutable package version, not in-place mutation. Old package versions remain callable, module initializers do not rerun, existing public function signatures must remain unchanged except for permitted relaxation of generic ability constraints, and struct and enum layouts and abilities must remain unchanged.
-- Treat old and new package versions as simultaneously callable adversarial APIs over every shared object and original type that both versions can reach. Updating an SDK, frontend, dependency, or current package ID does not retire an old public or entry function.
-- For every changed public or entry function body that reads or mutates shared protocol state, model old-to-new, new-to-old, and repeated alternating call sequences. Decide whether the operational package version must advance, and prove that alternation cannot bypass a new guard, double-accrue or double-claim rewards or fees, reuse a stale witness or snapshot, restore a retired state, or create state that either version misinterprets. Do not require a cutover for a pure, read-only, or caller-owned inert path unless a concrete invariant crosses versions.
-- If an already-published old mutator lacks an operational version check, adding a check only to new bytecode does not disable that old path. Advance a pre-existing state seam that every old mutator already checks, or migrate to a new gated state type or package lineage and retire the old mutation surface; otherwise report the cross-version risk as unresolved.
-- Check the diff against the active `UpgradeCap` policy. `compatible` may change implementations and non-public signatures, relax generic ability constraints, add declarations, and change dependencies while preserving link and layout compatibility; `additive` may only add declarations and change dependencies; `dep_only` may only change dependencies.
-- When stored shape must change, introduce a new type and an authorized migration, or use a dynamic-extension seam designed before publication; never assume upgraded code can add a field to an existing object.
-- For an upgradeable package with operational activation, gate every mutation of shared protocol state at its own use site with an explicit package version before other guards; a witness minted before cutover must not unlock an old mutator.
-- Keep native upgrade commit separate from operational activation. Activate only the expected next compiled generation so a wrong build leaves the previous generation able to authorize repair.
-- A dependent package stays linked to the dependency generation it was published or upgraded against. Before activation or destroying its `UpgradeCap`, prove every dependent route survives or schedule an explicit dependency re-link; never make a dependent immutable while it calls a seam the cutover closes.
-- Do not version-gate a self-custodial exit or deletion of a caller-owned inert object when it mutates no shared state.
-- Validate that `Publisher` and `UpgradeCap` belong to the original package before custody.
-- Validate exact upgrade digests and matching framework receipts.
-- Permit upgrade-policy changes only toward more restrictive settings; the framework exposes no loosening operation, so stop at the strictest policy that preserves any required rescue path.
-- For an upgradeable wrapped cap, expose ticket authorization only through the package's accepted upgrade authority, such as live revocable administration, a multisig, a timelocked controller, onchain governance, or another explicit policy. Validate that authority at the function that mutably borrows the cap; never expose the cap, a generic mutable borrow or release, or an ungated ticket-authorization seam.
-- Keep controlled cap custody and shared-state version gates; neither replaces the other. Treat a cap irreversibly wrapped behind no reachable release, mutable-borrow, or ticket-authorization path as unusable upgrade authority and analyze the package under the intentionally immutable posture instead.
-- Do not add speculative governance cutovers, disable paths, or replacement-authority hooks.
-- Keep secrets, private transaction material, and deployment credentials out of source, logs, fixtures, and summaries.
+- Define pause scope exactly and preserve user exits and mandatory settlement
+  unless the design explicitly rejects them.
+- Let emergency authority reduce risk, not seize, reprice, or rewrite user
+  accounting.
+
+## Load upgrade guidance when applicable
+
+Before changing or reviewing publication, upgrades, package-capability custody,
+operational versioning, shared-state migration, or dependency relinking, read
+[Upgrade security](references/upgrade-security.md) completely. Also read it
+when old and new package versions can both reach shared protocol state changed
+by the task.
+
+## Protect sensitive material
+
+- Keep secrets, private transaction material, and deployment credentials out
+  of source, logs, fixtures, and summaries.

@@ -2,6 +2,57 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.5.0] - 2026-08-31
+
+This release promotes five checklist-complete designs into a progressive,
+installable Sui Move patterns skill and reduces context pressure across the
+existing suite.
+
+### Added
+
+- Added `$sui-move-patterns`, with a lean selection workflow and directly
+  linked conditional references for Define–Export–Ignore,
+  Validate–Issue–Consume, Bind–Handoff–Redeem, Wrap–Wait–Redeem, and
+  Consume–Replace–Retire.
+- Added explicit selection, rejection, combination, and conflict rules so a
+  reusable pattern cannot displace a simpler design or weaken the focused
+  architecture, security, source, event, and testing standards.
+- Added an errors position to the canonical Move module order.
+- Required simple packages to define module-owned errors as descriptive
+  `#[error(code = N)]` `vector<u8>` constants, preserve existing codes, and use
+  package-wide error macros only for namespaces shared by multiple modules.
+- Added source rules for redundant single-use temporaries and aggressive
+  decomposition of monolithic multi-phase transitions.
+
+### Changed
+
+- Removed the five promoted entries from the patterns incubator; the three
+  entries that do not yet pass the complete checklist remain candidates.
+- Moved detailed package-upgrade security guidance into a conditional reference
+  and narrowed the full-review trigger that loads it.
+- Compressed the guide's upgrade route and split dense compound rules across the
+  focused skills without removing substantive requirements.
+- Routed explicit pattern-selection tasks through `$sui-move-patterns` while
+  keeping full reviews anchored to the five normative standards.
+
+### Affected skills
+
+- `sui-move-guide`
+- `sui-move-architecture`
+- `sui-move-source-style`
+- `sui-move-security`
+- `sui-move-events-errors`
+- `sui-move-testing`
+- `sui-move-patterns`
+- `sui-move-review`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the new patterns skill
+  and updated focused standards.
+- Invoke `$sui-move-patterns` explicitly when selecting or applying one of the
+  promoted designs; no existing skill was renamed or removed.
+
 ## [0.4.0] - 2026-08-31
 
 This release adds deliberate partial generic inference to the Sui Move source-style standard.

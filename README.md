@@ -30,7 +30,7 @@ The installer detects supported agents and links or copies each selected skill i
 
 One semantic version covers the complete suite. A patch release corrects wording or sources, a minor release adds rules, checks, or skills, and a major release removes or renames skills or changes a workflow incompatibly. Individual `SKILL.md` files do not carry separate versions.
 
-Current release: `v0.4.0`.
+Current release: `v0.5.0`.
 
 Read the [changelog](CHANGELOG.md) to learn what changed and whether action is required.
 
@@ -50,6 +50,7 @@ npx skills update sui-move-security -g
 
 - Invoke `$sui-move-guide` when you want the smallest applicable skill sequence.
 - Invoke `$sui-move-review` for a full architecture, source, security, event/error, and testing audit.
+- Invoke `$sui-move-patterns` to select, compare, implement, or review one of the promoted reusable designs.
 - Invoke a focused skill directly, or let compatible agents load it from its frontmatter description.
 
 ## Skills
@@ -62,18 +63,20 @@ npx skills update sui-move-security -g
 | `sui-move-security` | Invariant preservation, liveness, capabilities, replay, custody, DeFi accounting, adapters, time, oracles, randomness, and upgrades. |
 | `sui-move-events-errors` | Minimal replay-complete events, native metadata, identity, emitters, stable errors, and abort ownership. |
 | `sui-move-testing` | Risk-based tests, exact failures, fixtures, properties, replay, and release gates. |
+| `sui-move-patterns` | Select reusable designs for cross-package ownership, ephemeral authority, adapter custody, deferred fungibility, and emergency shared-state replacement. |
 | `sui-move-review` | Full review across all five standards. |
 
 ## Suggested flows
 
 - New package or major feature: architecture → security → source style → events/errors → testing → review.
 - Existing transition: security + source style + testing; add architecture or events/errors when their boundaries change.
+- Explicit pattern selection: patterns → the focused standards that own the selected design's invariants.
 - Pull request: `sui-move-review`.
 - Unsure: `sui-move-guide`.
 
 Each directory under `skills/` is installer-discoverable. Install the complete set for routing and full reviews, or install one focused standard for a narrow task.
 
-Detailed DeFi and pinned-library procedures ship as bundled references and are loaded only when their subject applies. This keeps ordinary security and source-style tasks smaller without dropping specialized rules.
+Detailed DeFi, upgrade, pinned-library, and promoted-pattern procedures ship as bundled references and are loaded only when their subject applies. This keeps ordinary tasks smaller without dropping specialized rules.
 
 Project-specific accepted decisions and published ABI take precedence over examples. Do not copy product constants, storage layouts, error numbers, or dependency revisions between protocols without independent review.
 

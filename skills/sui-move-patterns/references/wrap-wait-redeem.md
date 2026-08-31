@@ -78,9 +78,9 @@ can delay redemption. A non-droppable receipt can become a trapped claim if
 every exit is gated. Preserve an accepted recovery or exit path, or state the
 governance delay as part of the economic contract.
 
-Use this pattern only for a genuine cross-transaction wait. Use
-Construct–Attach–Finalize when an incomplete value must not leave one PTB. Use a
-no-ability handoff when an adapter must settle in the same PTB.
+Use this pattern only for a genuine cross-transaction wait. Use a staged
+constructor when an incomplete value must not leave one PTB. Use a no-ability
+handoff when an adapter must settle in the same PTB.
 
 ## Verification obligations
 
