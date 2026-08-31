@@ -122,6 +122,11 @@ When a returned object has `key` but not `store`, provide its consuming sink in 
 - Do not add a pass-through parameter solely to relay or return a value unchanged; another module should receive it only when that module validates, transforms, consumes, or stores it.
 - A witness, marker, or capability used for type-level authority is not unused: keep it as `_` or a meaningful `_role` name. Remove an unread parameter from private code and from a signature already changing for another reason. Otherwise, do not churn a published or intentionally uniform forwarding signature merely to drop it; keep the parameter anonymous and document the compatibility reason only when it is not obvious.
 
+## Infer generic arguments when clear
+
+- Omit generic arguments that the compiler can infer. When only some arguments must remain explicit, use `_` for those fixed unambiguously by a value argument, receiver, or expected result: `dynamic_object_field::exists_with_type<_, Capability>(&self.id, CapabilityKey<Capability>())`.
+- Keep a type argument explicit when inference fails or its spelling communicates domain meaning that the expression does not. Verify partial inference with the repository's pinned compiler; `_` is an expression-level type placeholder, not a type permitted in function signatures, constant types, or datatype fields.
+
 ## Use precise API vocabulary
 
 - Use `new` for the module's primary constructor.

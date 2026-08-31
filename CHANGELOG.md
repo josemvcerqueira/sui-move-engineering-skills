@@ -2,6 +2,26 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.4.0] - 2026-08-31
+
+This release adds deliberate partial generic inference to the Sui Move source-style standard.
+
+### Added
+
+- Prefer omitting generic arguments that the pinned compiler can infer unambiguously.
+- Use `_` for inferable type arguments when another generic argument must remain explicit, including dynamic-field type checks whose key type is fixed by the key value.
+- Keep type arguments explicit when inference fails or their spelling communicates domain meaning that the expression does not.
+- Restrict `_` type placeholders to expression contexts supported by Move rather than signatures, constant types, or datatype fields.
+
+### Affected skills
+
+- `sui-move-source-style`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the generic-inference source rule.
+- No skill name or invocation workflow changed.
+
 ## [0.3.2] - 2026-08-31
 
 This patch makes package-upgrade review guidance self-contained and strengthens cross-version security analysis.
