@@ -91,6 +91,13 @@ Use small, ability-free hot-potato fixtures:
   applicable lifecycle path. Measure serialized size and gas.
 - For dynamic child storage:
   - decode every entry;
+  - query each identity-bearing child by its original object ID and verify its
+    current type, owner, version, and canonical state after every relevant
+    committed mutation or custody transition;
+  - traverse dynamic-object-field metadata back to the controlling parent and
+    reconstruct promised derived values without application infrastructure;
+  - for intentional wrapping, consumption, or deletion, verify the terminal
+    transaction effect and approved reconstruction path;
   - prove parent destruction strands no child or value;
   - cover intentional retention on close or cancel;
   - test rebate recovery only when the accepted economics require it.

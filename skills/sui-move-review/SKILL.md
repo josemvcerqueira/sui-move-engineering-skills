@@ -48,7 +48,11 @@ Read the target repository instructions, package manifest, relevant design recor
    - keep old package versions safe or operationally gated;
    - use a new type and an authorized migration, or a dynamic-extension seam
      designed before publication, for state-shape changes.
-4. Map package and module responsibilities, state ownership, dependency direction, and every authority issuance and custody-changing path.
+4. Map package and module responsibilities, state ownership, dependency
+   direction, and every authority issuance and custody-changing path. For each
+   identity-bearing `key` object, verify that top-level or dynamic-object-field
+   custody preserves required lookup by its original ID; treat normal-field or
+   ordinary-dynamic-field wrapping as an explicit terminal design decision.
 5. Run a redundancy pass over stored fields, event types and fields, public
    seams, parameters, helpers, and locals. Name each fact's authority and
    consumer. Preserve type and ability boundaries plus replay-critical

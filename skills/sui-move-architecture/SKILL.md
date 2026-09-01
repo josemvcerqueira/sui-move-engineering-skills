@@ -9,6 +9,10 @@ Design the smallest on-chain system that preserves consensus, custody, compositi
 
 Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
 
+Read [Indexer-visible object custody](references/indexer-visible-object-custody.md)
+completely when a `key` object is stored, nested, wrapped, indexed, or expected
+to remain independently discoverable by its original ID.
+
 ## Decide what belongs on chain
 
 Put logic or state on chain only when at least one of these conditions applies:
@@ -106,6 +110,11 @@ or activation transition.
   speculative flags, modes, roles, or governance hooks.
 - Keep a one-field wrapper when it changes abilities, construction rights, type-level domain separation, atomic presence, or serialization. Data shape alone does not prove redundancy.
 - Keep a validated unit wrapper inside the package when it prevents illegal stored values; accept or emit a primitive at an external ABI boundary when exposing the wrapper would leak an internal representation, and validate once at construction.
+- Preserve top-level or dynamic-object-field custody for every `key` object
+  whose identity, ownership, or live state must remain independently
+  discoverable. Do not embed such an object in a normal field or ordinary
+  dynamic-field value, and do not mirror its canonical state for indexer
+  convenience.
 - Choose collection storage by its size bound, lookup pattern, and object-visibility requirements:
   - Use an inline vector when the contract enforces a safe maximum and entries are naturally accessed by index or iteration as part of the parent.
   - Use dynamic fields for extensible, typed-key child storage that does not change the parent's struct layout.

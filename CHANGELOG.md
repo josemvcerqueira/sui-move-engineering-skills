@@ -2,6 +2,43 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.6.0] - 2026-09-01
+
+This release preserves indexer-visible object identity across Sui custody and
+storage decisions.
+
+### Added
+
+- Added a conditional object-custody reference that distinguishes top-level
+  objects and dynamic object children from objects wrapped in normal fields or
+  ordinary dynamic-field values.
+- Required authority-bearing objects that remain externally discoverable to
+  use controlled dynamic-object-field custody instead of mirrored state.
+- Added external verification obligations for original object IDs, current
+  type, owner, version, canonical state, committed custody transitions, parent
+  traversal, terminal effects, and infrastructure-independent reconstruction.
+
+### Changed
+
+- Architecture reviews now treat wrapping an identity-bearing `key` object as
+  an explicit terminal design decision rather than an incidental storage
+  choice.
+- Dynamic child-storage tests now verify object discovery and custody through
+  supported RPC or indexer APIs in addition to Move-level behavior.
+
+### Affected skills
+
+- `sui-move-architecture`
+- `sui-move-testing`
+- `sui-move-review`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the object-custody
+  architecture and verification rules.
+- Review identity-bearing objects stored in normal fields or ordinary dynamic
+  fields and document any intentional loss of direct object discovery.
+
 ## [0.5.0] - 2026-08-31
 
 This release promotes five checklist-complete designs into a progressive,
