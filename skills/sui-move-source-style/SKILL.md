@@ -198,6 +198,12 @@ When a returned object has `key` but not `store`, provide its consuming sink in 
 - When only some arguments must remain explicit, use `_` for those fixed
   unambiguously by a value argument, receiver, or expected result:
   `dynamic_object_field::exists_with_type<_, Capability>(&self.id, CapabilityKey<Capability>())`.
+- When a generic return type must be specified, provide it at the call site and
+  infer the local variable type. Do not annotate a local reference solely to
+  drive generic inference. Prefer
+  `let policy_override = venue_config.policy<_, AftermathPolicy>(PolicyKey());`
+  over
+  `let policy_override: &AftermathPolicy = venue_config.policy(PolicyKey());`.
 - Keep a type argument explicit when inference fails or its spelling
   communicates domain meaning that the expression does not.
 - Verify partial inference with the repository's pinned compiler. `_` is an

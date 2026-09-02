@@ -2,6 +2,28 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.7.0] - 2026-09-02
+
+This release makes generic return-type selection explicit at the call site
+while keeping local binding types inferred.
+
+### Added
+
+- Added a source-style rule that places a required generic return type in the
+  call's type arguments instead of annotating a local reference solely to drive
+  inference.
+- Documented the preferred partial-inference form with `_` for type arguments
+  already determined by value arguments or the receiver.
+
+### Affected skills
+
+- `sui-move-source-style`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the generic inference
+  rule.
+
 ## [0.6.0] - 2026-09-01
 
 This release preserves indexer-visible object identity across Sui custody and
