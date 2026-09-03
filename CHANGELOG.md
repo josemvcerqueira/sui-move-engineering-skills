@@ -2,6 +2,35 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [0.8.0] - 2026-09-03
+
+This release makes invariant ownership the governing rule for Sui Move module
+boundaries.
+
+### Added
+
+- Added an architecture rule to keep code together when it shares authority,
+  lifecycle, consumers, and reason to change.
+- Defined security, custody, dependency isolation, visibility, and independent
+  deployment as the reasons to introduce a module or package seam.
+- Added a full-review gate that rejects modules created merely per function,
+  type, conceptual subtopic, or file-length preference.
+
+### Changed
+
+- Replaced ambiguous one-concern module guidance with explicit invariant-owner
+  guidance, including the conditions that justify small modules.
+
+### Affected skills
+
+- `sui-move-architecture`
+- `sui-move-review`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the invariant-owner
+  architecture and review rules.
+
 ## [0.7.0] - 2026-09-02
 
 This release makes generic return-type selection explicit at the call site

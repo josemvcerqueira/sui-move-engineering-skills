@@ -48,8 +48,23 @@ external adapters and independent systems
 SDK, indexing, transaction, and deployment tooling
 ```
 
-## Give each module one concern
+## Organize modules by invariant ownership
 
+- Make one module the owner of each coherent invariant set. A module is an
+  invariant owner, not a bucket for one function, one type, or one conceptual
+  subtopic.
+- Keep code together when it has the same authority, lifecycle, consumers, and
+  reason to change. The owning module may contain all of the related types,
+  transitions, checks, and private helpers needed to preserve its invariants.
+- Split a module only when the seam enforces a real security, custody,
+  dependency-isolation, or visibility boundary. When the required boundary is
+  independent deployment, split the package rather than pretending a module
+  can deploy independently.
+- A small module is justified when it enforces one of those boundaries;
+  otherwise it is navigation overhead. Do not split merely to shorten a file,
+  mirror a function or type taxonomy, or give every nameable subtopic a home.
+- When two proposed modules share authority, lifecycle, consumers, and reason
+  to change, combine them unless their seam enforces one of those boundaries.
 - Put state with the lifecycle that mutates it.
 - Put a capability type in the module that owns its one-time issuance and lifecycle.
 - Put authorization checks beside the private authority representation they inspect.
