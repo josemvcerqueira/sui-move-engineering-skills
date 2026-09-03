@@ -1,86 +1,64 @@
 ---
 name: sui-move-review
-description: Audit a Sui Move pull request, branch, package, or release against the complete engineering standard. Use when the user wants a comprehensive review that applies every suite convention together; use focused skills for narrow architecture, security, event, error, source-style, or test reviews.
+description: Audit a Sui Move pull request, branch, package, or release against the complete engineering standard. Use when the user wants a comprehensive review that applies every suite convention together; use architecture for narrow event or replay reviews, source style for narrow error or diagnostic reviews, and the other focused skills for their own domains. Requires the complete suite installation.
 ---
 
 # Sui Move Review
 
 Perform one evidence-based review across the complete standard.
 
+## Require the complete suite
+
+Treat this review orchestrator as suite-only, not standalone. Before reviewing,
+verify that every sibling standard listed below is installed. If any is missing,
+stop and tell the user to install the complete suite; do not reconstruct or skip
+the missing standard.
+
 ## Load the standards
 
-Read these sibling skills completely before reviewing:
+Read these sibling skills completely before reviewing. Read each standard once
+per task; do not reload one that is already present, complete, and unchanged:
 
 1. [sui-move-architecture](../sui-move-architecture/SKILL.md)
 2. [sui-move-source-style](../sui-move-source-style/SKILL.md)
 3. [sui-move-security](../sui-move-security/SKILL.md)
-4. [sui-move-events-errors](../sui-move-events-errors/SKILL.md)
-5. [sui-move-testing](../sui-move-testing/SKILL.md)
+4. [sui-move-testing](../sui-move-testing/SKILL.md)
 
 Read [Package upgrade posture](references/package-upgrade-posture.md)
 completely when the target is unpublished or the review concerns publication,
 deployment, upgrades, immutability claims, package-capability custody, or
 operational versioning. Also read it when the evidence does not establish one
-of the three postures. Otherwise apply the classification in step 2 without
-loading the reference.
+of the three postures. Otherwise apply the classification in review step 1
+without loading the reference.
 
-Read the target repository instructions, package manifest, relevant design records, implementation, tests, and structural gates. Treat reference repositories as evidence, not authority over the target's accepted protocol decisions.
+Read the target repository instructions, package manifest, relevant design
+records, implementation, tests, and structural gates. Treat reference
+repositories as evidence, not authority over the target's accepted protocol
+decisions.
 
 ## Review in this order
 
-1. Establish intended behavior, assets and invariants, threat assumptions, required liveness and exits, publication status, accepted future `Publisher` uses, and the published compatibility boundary.
-2. Classify each package as intentionally immutable, simple upgradeable, or
-   evolving shared-state upgradeable. Verify that the following agree with that
-   posture:
-   - `UpgradeCap` lifecycle and custody;
-   - `Publisher` decision;
-   - operational version seam;
-   - deployment flow;
-   - public promises.
-   Do not recommend upgrade machinery without a concrete risk or roadmap
-   requirement.
-3. For an upgrade, compare against the published package and active
-   `UpgradeCap` policy:
-   - preserve existing public function signatures except for permitted
-     relaxation of generic ability constraints;
-   - preserve struct and enum layouts and abilities;
-   - do not rely on module initializers;
-   - keep old package versions safe or operationally gated;
-   - use a new type and an authorized migration, or a dynamic-extension seam
-     designed before publication, for state-shape changes.
-4. Map package and module invariant owners, state ownership, dependency
-   direction, and every authority issuance and custody-changing path. For each
-   module, name its authority, lifecycle, consumers, and reason to change.
-   Require code that shares all four to remain with one invariant owner unless
-   the seam enforces security, custody, dependency isolation, visibility, or
-   independent deployment; reject modules created merely per function, type,
-   conceptual subtopic, or file-length preference. For each identity-bearing
-   `key` object, verify that top-level or dynamic-object-field custody preserves
-   required lookup by its original ID; treat normal-field or ordinary-dynamic-
-   field wrapping as an explicit terminal design decision.
-5. Run a redundancy pass over stored fields, event types and fields, public
-   seams, parameters, helpers, and locals. Name each fact's authority and
-   consumer. Preserve type and ability boundaries plus replay-critical
-   redundancy.
-6. Search callers and trace every changed or transitively affected production
-   transition through fail-fast guards, read-only dependency data, proposed values,
-   postconditions, effectful handoffs, mutation, asset movement, emission, and
-   returns. Require the owner function to read as that ordered summary. When it
-   mixes independently nameable phases or phase-specific nested branches,
-   extract cohesive domain-named private helpers without changing the sequence.
-7. Reconcile arithmetic, rounding, balances, fees, burns, refunds, and residuals.
-8. Check event replay, payload necessity, error ownership, abort location, and
-   guard precedence. In simple packages, reject bare module-local `u64` errors:
-   errors declared and raised by one module must use `#[error(code = N)]` with
-   descriptive `vector<u8>` messages and preserved codes. Reserve package error
-   macros for namespaces shared by multiple modules.
-9. Check naming, sections, imports, visibility, abilities, signatures, `self`
-   receiver naming, receiver syntax, direct UID access, pinned framework reuse,
-   macro choices, local usage, and test-only seams.
-10. Check test evidence across positive, negative, boundary, stateful invariant,
-    adversarial composition, signatures, time, oracle, randomness,
-    hostile-asset, replay, emergency, upgrade, and dependency risks.
-11. Run the relevant pinned build, lint, test, source-boundary, ABI, dependency, coverage, and diff checks when available.
+1. Establish intended behavior, assets and invariants, threat assumptions,
+   required liveness and exits, publication status, and compatibility boundary.
+   Classify package upgrade posture before deciding which upgrade machinery is
+   required.
+2. Apply architecture to on-chain scope, invariant ownership, state and
+   authority boundaries, dependency direction, public seams, storage, and
+   redundancy. Name each fact's authority and consumer.
+3. Search callers and apply security to every changed or transitively affected
+   transition and reachable composition. Trace guards, dependency reads,
+   proposed values, postconditions, effects, asset movement, emission, and
+   returns in execution order. Reconcile every applicable economic identity.
+4. Apply source style to the affected production and test code. Preserve
+   observable ordering and published compatibility while simplifying.
+5. Apply architecture's event guidance and source style's error guidance to
+   emitted facts, replay, payload necessity, abort ownership, diagnostic
+   identity, precedence, and compatibility.
+6. Apply testing to every risk identified by the other standards. Require
+   evidence for relevant positive, negative, boundary, stateful, adversarial,
+   replay, integration, upgrade, and dependency behavior.
+7. Run the repository's pinned build, lint, test, source-boundary, ABI,
+   dependency, coverage, and diff gates when available.
 
 ## Report findings
 

@@ -1,9 +1,26 @@
-# Indexer-visible object custody
+# Storage and indexer-visible object custody
 
-Use this rule when a Sui `key` object's stable identity, ownership, current
-type, or live state must remain independently discoverable by indexers,
-explorers, wallets, or standard RPC tooling while another object controls its
-custody.
+Use these rules when choosing inline or dynamic child storage, or when a Sui
+`key` object's stable identity, ownership, current type, or live state must
+remain independently discoverable by indexers, explorers, wallets, or standard
+RPC tooling while another object controls its custody.
+
+## Choose child storage by its invariant
+
+- Use an inline vector when the contract enforces a safe maximum and entries
+  are naturally accessed by index or bounded iteration as part of the parent.
+- Use dynamic fields for extensible, typed-key child storage that need not
+  remain independently discoverable by an original object ID.
+- Use dynamic object fields when a child has its own `UID` and must remain
+  separately discoverable while attached to a controlling parent.
+- Use a table for a large map-like collection only when its scale justifies
+  per-entry child storage and cleanup.
+- Define every dynamic child's terminal lifecycle before choosing the storage
+  seam. Close and cancel paths may retain children only while the parent stays
+  accessible.
+- Before destroying a parent, remove every child and transfer or destroy it as
+  required so no value becomes unreachable. Recover storage rebates when
+  economically worthwhile.
 
 ## Preserve objecthood
 

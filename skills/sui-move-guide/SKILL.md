@@ -1,82 +1,96 @@
 ---
 name: sui-move-guide
-description: Route Sui Move engineering tasks to the smallest applicable skill sequence. Use when a developer asks which Sui Move standard applies, wants help routing a Move task, or wants the complete Sui Move development flow.
+description: Route Sui Move engineering tasks to the smallest applicable skill sequence. Use when a developer asks which Sui Move standard applies, wants help routing a Move task, or wants the complete Sui Move development flow. Requires the complete suite installation to execute the selected route.
 ---
 
 # Sui Move Guide
 
-Route the task to the smallest set of Sui Move skills that covers the risk. This skill is an explicit catalog, not a coding standard by itself.
+Route the task to the smallest set of Sui Move skills that covers the risk. Use
+this skill as an explicit catalog, not a coding standard.
+
+## Require the complete suite
+
+Use the catalog to explain a route even when only this skill is available.
+Before applying the route, verify that every selected sibling skill is
+installed. If one is missing, tell the user to install the complete suite; do
+not reconstruct or silently skip its rules.
 
 ## Skills
 
-- `$sui-move-architecture`: package boundaries, module responsibilities, minimal state, canonical authority, dependency direction, on-chain scope, abilities, capabilities, and cross-package seams.
-- `$sui-move-source-style`: module and function names, file sections, imports, visibility, `self` receiver naming, receiver syntax, direct UID access, pinned framework functions and macros, parameter and local discipline, API vocabulary, docs, and test-only seams.
-- `$sui-move-security`: fail-fast ordering, authorization, signed actions, replay, bounded work, arithmetic, custody, external seams, time, oracles, randomness, pause, versioning, and upgrades.
-- `$sui-move-events-errors`: completed-fact events, minimal payloads, native metadata, replay schemas, identity, ordering, wrapper/emitter architecture, stable error registries, abort ownership, and compatibility.
-- `$sui-move-testing`: risk-based tests, exact failures, guard precedence, stateful hot-potato fixtures, property tests, event replay, dependency verification, and release gates.
-- `$sui-move-patterns`: selection and application of reusable designs for misplaced cross-package logic, ephemeral authorization proofs, sealed adapter handoffs, deferred fungibility receipts, and emergency shared-state replacement.
-- `$sui-move-review`: one full audit across all five standards.
+- `$sui-move-architecture`: package boundaries, module responsibilities,
+  minimal state, reusable value invariants, events and replay, canonical
+  authority, dependency direction, on-chain scope, abilities, capabilities,
+  and composition seams.
+- `$sui-move-source-style`: sections, imports, names, visibility, signatures,
+  errors and abort ownership, receiver and index syntax, direct UID access,
+  pinned library reuse, locals, API vocabulary, documentation, and test-only
+  seams.
+- `$sui-move-security`: fail-fast ordering, authorization, signed actions,
+  replay, bounded work, arithmetic, custody, integrations, time, oracles,
+  randomness, pauses, versions, and upgrades.
+- `$sui-move-testing`: risk-based tests, exact failures, guard precedence,
+  fixtures, properties, event replay, integrations, upgrades, dependencies, and
+  release gates.
+- `$sui-move-patterns`: selection and application of the suite's promoted
+  reusable designs.
+- `$sui-move-review`: one complete audit across all focused standards.
 
 ## Common routes
 
 ### Design a new package or major feature
 
-1. Run `$sui-move-architecture` before defining public ABI or storage.
-2. Run `$sui-move-security` before settling authority, lifecycle, or economic transitions.
-3. Apply `$sui-move-source-style` while writing modules.
-4. Apply `$sui-move-events-errors` when defining transition diagnostics and indexing ABI.
-5. Apply `$sui-move-testing` before implementation is complete.
-6. Finish with `$sui-move-review`.
+Apply architecture before public ABI or storage, then security, source style,
+and testing. Finish with review. Read each standard only once per task.
 
 ### Change an existing state transition
 
-Apply `$sui-move-security`, `$sui-move-source-style`, and `$sui-move-testing`. Add `$sui-move-events-errors` when event, error, guard precedence, or replay behavior can change. Add `$sui-move-architecture` when state ownership, authority, abilities, visibility, or package boundaries can change.
+Apply security, source style, and testing. Add architecture when state
+ownership, authority, abilities, visibility, storage, event emission, replay,
+or package boundaries can change. Source style owns any changed error
+representation; security owns guard behavior and precedence.
 
 ### Add or change a module, type, or public API
 
-Apply `$sui-move-architecture` and `$sui-move-source-style`. Add
-`$sui-move-security` for any authority, asset, lifecycle, or shared-state type.
-For published code, preserve existing function signatures and datatype layouts;
-the focused skills own permitted constraint relaxation and state migration.
+Apply architecture and source style. Add security for authority, asset,
+lifecycle, or shared-state types. Preserve published function signatures and
+datatype layouts; the focused skills own migration details.
 
 ### Upgrade a package or migrate state
 
-Apply `$sui-move-architecture`, `$sui-move-security`,
-`$sui-move-source-style`, and `$sui-move-testing`. Add
-`$sui-move-events-errors` when indexed behavior can change. Treat published ABI
-and old-version reachability as compatibility constraints; the focused skills
-own the detailed upgrade, migration, dependency, and test rules.
+Apply architecture, security, source style, and testing. Load architecture's
+event reference or source style's error reference when indexed or diagnostic
+behavior changes. Finish with review for a release-wide audit.
 
 ### Add events or errors
 
-Apply `$sui-move-events-errors`, then `$sui-move-testing`. Add `$sui-move-security` when the diagnostic change exposes a new guard, authorization check, or economic transition.
+For events, apply architecture and testing. For errors, apply source style and
+testing; add security when guard order, authorization, or transition behavior
+can change.
 
 ### Audit redundancy or simplify Move code
 
-Apply `$sui-move-architecture` to storage and public seams. Apply
-`$sui-move-events-errors` to whole events and payload fields. Apply
-`$sui-move-source-style` to parameters, helpers, and locals. Use
-`$sui-move-testing` before removing a fact or seam, and add
-`$sui-move-security` when simplification can change guards, authority, assets,
-or evaluation order.
+Apply architecture to state, public seams, events, and replay; apply source
+style to code shape and errors; apply testing before removal. Add security when
+simplification can change guards, authority, assets, composition, or evaluation
+order.
 
 ### Build or repair tests
 
-Apply `$sui-move-testing`. Also apply the skill that owns the behavior under test; tests must prove the rule, not invent it.
+Apply testing plus the focused skill that owns the behavior under test. Tests
+prove rules; they do not invent them.
 
 ### Select, compare, or apply a reusable pattern
 
-Apply `$sui-move-patterns` when the task explicitly asks for a named pattern,
-compares reusable implementation shapes, or matches one of its promoted design
-problems. Then apply the focused skills that own the selected pattern's
-architecture, security, source, event, and testing invariants. Do not load the
-patterns skill for ordinary standards work that does not require pattern
-selection.
+Apply patterns when the task asks for a named reusable design or matches a
+promoted pattern's problem. Then apply only the focused standards that own the
+selected design's invariants.
 
 ### Review a branch or pull request
 
-Use `$sui-move-review`. It loads all five standards and reports findings by severity.
+Use review. It loads every focused standard and requires the complete suite.
 
 ## Routing rule
 
-When uncertain, include security and testing. Do not load every skill for a narrow naming question, and do not treat source style as a substitute for architecture or security.
+When uncertain, include security and testing. Do not load every skill for a
+narrow naming question, and do not treat source style as a substitute for
+architecture or security.

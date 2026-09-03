@@ -1,6 +1,6 @@
 ---
 name: sui-move-source-style
-description: Apply consistent Sui Move source organization, naming, visibility, abilities, signatures, `self` receiver naming, receiver and index syntax, direct UID access, pinned standard-library and framework reuse, macros, local-variable discipline, API vocabulary, documentation, and test-only conventions. Use when writing, simplifying, refactoring, or reviewing any `.move` source or test file.
+description: Apply consistent Sui Move source organization, naming, visibility, abilities, signatures, errors, abort ownership, `self` receiver naming, receiver and index syntax, direct UID access, pinned standard-library and framework reuse, macros, local-variable discipline, API vocabulary, documentation, and test-only conventions. Use when writing, simplifying, refactoring, or reviewing any `.move` source or test file, including errors, assertions, and guard diagnostics.
 ---
 
 # Sui Move Source Style
@@ -26,10 +26,9 @@ Use this order and omit empty sections:
 11. `// === Test-Only Types ===` when needed, then `// === Test-Only Functions ===`.
 
 Use title case. Group large public surfaces by domain operation, not only visibility.
-Put module-local `#[error(code = N)]` `EUpperCamelCase: vector<u8>` constants
-and a dedicated `errors.move` module's literal-returning error macros under
-`// === Errors ===`. Do not use bare module-local `u64` error constants. Omit
-the section when a module only raises fully qualified errors defined elsewhere.
+Put locally declared error constants and a dedicated `errors.move` module's
+macros under `// === Errors ===`. Omit the section when a module only raises
+fully qualified errors defined elsewhere.
 Format function bodies as logical paragraphs, with one blank line between validation, derivation, mutation or transfer, emission, and return. Do not blank-line every statement or pad tiny helpers.
 
 ## Organize imports
@@ -47,23 +46,31 @@ iteration, object, transfer, macro, or framework-wrapper logic, read
 the pinned implementation when its semantics match; do not add a wrapper solely
 to rename it.
 
+## Load Move 2024 syntax guidance when applicable
+
+Before adding, changing, simplifying, or reviewing receiver aliases, index
+syntax, direct UID access, or partial generic inference, read
+[Move 2024 source syntax](references/move-2024-syntax.md) completely. Follow the
+target package's pinned edition and compiler.
+
+## Load error guidance when applicable
+
+Before adding, changing, testing, or reviewing errors, assertions, abort
+ownership, guard precedence, or diagnostic compatibility, read
+[Errors](references/errors.md) completely.
+
 ## Name by domain meaning
 
 - Use lower snake case for packages, modules, files, functions, variables, and package macros.
 - Use UpperCamelCase for structs and enums.
 - Use uppercase snake case for ordinary constants.
 - Use `EUpperCamelCase` for named error constants.
-- In a simple package, give every error declared and raised by one module an
-  explicit `#[error(code = N)]` and descriptive `vector<u8>` message. Preserve
-  existing codes. Reserve package-wide error macros for a numeric namespace
-  deliberately shared by multiple modules.
 - End durable authority objects in `Cap`.
 - End ephemeral authorization proofs in `Witness`.
 - Name linear handoffs and hot potatoes for their domain fact: `Request`, `Receipt`, `Payload`, `Price`, or `FlashLoan`.
 - Name phantom type parameters for their role: `Asset`, `Quote`, `CoinType`, or `Venue`, not `T` when the role matters.
 - Name fixtures for what they provide: `ClaimFixture`, `UpgradeFixture`.
 - Name tests as behavioral facts: `constructor_rejects_zero_allocation`.
-- Name event payloads as completed past-tense facts: `AdminGranted`, `FeesClaimed`.
 - Include rounding direction in math names: `apply_down`, `mul_div_up`, `to_assets_down`.
 
 ## Keep visibility narrow
@@ -130,46 +137,6 @@ When a returned object has `key` but not `store`, provide its consuming sink in 
   split one invariant across functions, or add indirection without reducing the
   reasoning surface.
 
-## Use receiver syntax naturally
-
-- Use dot syntax when the first parameter is the natural receiver: `market.supply(...)`, `cap.assert_market(...)`, `coin.into_balance()`.
-- In the module that defines a type, name the natural-receiver first parameter
-  `self` whenever adding or materially editing the function.
-- Keep a role name for peer values of the same type or when `self` would obscure
-  which value plays which role.
-- Outside the defining module, name the parameter for its domain role.
-- Constructors and genuinely static helpers have no `self`. The parameter name
-  documents intent; dot syntax is determined by the first argument's type.
-- Keep constructors and operations without a natural receiver module-qualified: `market::new(...)`, `curve::quote_buy(...)`.
-- Add a module-local `use fun dependency::function as Type.method` when a pinned
-  dependency exposes a natural receiver without receiver form.
-- For a dependency type, keep the alias module-local. `public use fun` is legal
-  only in the type's defining module; use it there only when it materially
-  clarifies the external API.
-- In tests, alias helpers with `use fun helper as Fixture.method`.
-
-## Prefer canonical index syntax
-
-- For new packages, set the stable `edition = "2024"` in `Move.toml`. In an existing package, follow its pinned edition and migrate deliberately; do not introduce an obsolete preview edition such as `2024.beta`.
-- In Move 2024, prefer `&collection[index]`, `&mut collection[index]`,
-  `collection[index]`, and indexed assignment over explicit `borrow` and
-  `borrow_mut` calls when the collection exposes canonical index syntax.
-- Bare `collection[index]` dereferences and copies the element, so it requires
-  the element type to have `copy`.
-- Pass each index argument exactly as the annotated accessor declares it: use `collection[key]` for a key taken by value and `collection[&key]` for a key taken by reference.
-- Add `#[syntax(index)]` to a custom type only when indexing is its canonical,
-  unsurprising public lookup API.
-- Annotated accessors must be public and defined in the type's module. Do not
-  widen a package-only API merely to obtain bracket syntax, and do not hide
-  insertion, settlement, authorization, or other surprising work behind it.
-- When defining both immutable and mutable index accessors, keep their type parameters, constraints, subject type, index parameters, and return type identical except for reference mutability.
-
-## Read object identity directly
-
-- Inside a type's defining module, prefer its directly accessible UID field: `self.id.to_inner()`, `value.id.to_inner()`, or `id.to_inner()` after unpacking. Take the ID before sharing, transferring, or unpacking when it is needed afterward.
-- Keep `object::id(value)` for generic `key` parameters, framework or external objects, and types defined in another module whose UID field is inaccessible.
-- Do not add an ID getter merely to replace `object::id`; add one only when identity is a real part of the defining module's consumer-facing interface.
-
 ## Use locals deliberately
 
 - **Redundant single-use temporary:** A local that merely names a pure
@@ -191,24 +158,6 @@ When a returned object has `key` but not `store`, provide its consuming sink in 
 - Otherwise, do not churn a published or intentionally uniform forwarding
   signature merely to drop it. Keep the parameter anonymous and document the
   compatibility reason only when it is not obvious.
-
-## Infer generic arguments when clear
-
-- Omit generic arguments that the compiler can infer.
-- When only some arguments must remain explicit, use `_` for those fixed
-  unambiguously by a value argument, receiver, or expected result:
-  `dynamic_object_field::exists_with_type<_, Capability>(&self.id, CapabilityKey<Capability>())`.
-- When a generic return type must be specified, provide it at the call site and
-  infer the local variable type. Do not annotate a local reference solely to
-  drive generic inference. Prefer
-  `let policy_override = venue_config.policy<_, AftermathPolicy>(PolicyKey());`
-  over
-  `let policy_override: &AftermathPolicy = venue_config.policy(PolicyKey());`.
-- Keep a type argument explicit when inference fails or its spelling
-  communicates domain meaning that the expression does not.
-- Verify partial inference with the repository's pinned compiler. `_` is an
-  expression-level type placeholder, not a type permitted in function
-  signatures, constant types, or datatype fields.
 
 ## Use precise API vocabulary
 

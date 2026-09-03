@@ -1,6 +1,6 @@
 ---
 name: sui-move-architecture
-description: Design secure, minimal Sui Move packages, modules, state, authority, and dependency boundaries. Use when adding, simplifying, or reviewing packages, modules, shared objects, capabilities, witnesses, hot potatoes, storage fields, public types, adapters, or cross-package composition.
+description: Design secure, minimal Sui Move packages, modules, state, events, replay contracts, authority, and dependency boundaries. Use when adding, simplifying, or reviewing packages, modules, shared objects, capabilities, witnesses, hot potatoes, storage fields, events, payloads, emitters, public types, adapters, indexing guarantees, or cross-package composition.
 ---
 
 # Sui Move Architecture
@@ -9,9 +9,14 @@ Design the smallest on-chain system that preserves consensus, custody, compositi
 
 Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
 
-Read [Indexer-visible object custody](references/indexer-visible-object-custody.md)
-completely when a `key` object is stored, nested, wrapped, indexed, or expected
-to remain independently discoverable by its original ID.
+Read [Storage and indexer-visible object custody](references/indexer-visible-object-custody.md)
+completely when choosing inline or dynamic child storage, or when a `key` object
+is stored, nested, wrapped, indexed, or expected to remain independently
+discoverable by its original ID.
+
+Read [Events](references/events.md) completely when adding, compacting,
+changing, indexing, or reviewing events, payload fields, emitters, or replay
+promises.
 
 ## Decide what belongs on chain
 
@@ -109,6 +114,24 @@ or activation transition.
 - Use phantom type parameters for domain separation when no value of the type is stored.
 - Keep reserves, fees, pending burns, allocations, refunds, and claims in separate balances when their ownership or terminal treatment differs.
 - Use the defining module's exclusive construction and field access to enforce the type's invariants. Expose only constructors and mutation operations that create valid state and preserve those invariants.
+- When several domain values genuinely reuse one stable field relationship,
+  consider a small sealed value struct with private fields and controlled
+  construction. Let that value struct own the shared invariant, then compose it
+  into domain structs that enforce only their additional relationships. For
+  example:
+
+  ```text
+  BoundedValue(min, current, max) owns min <= current <= max
+  Fee(denominator, bounds: BoundedValue) adds denominator > 0 and bounds.max <= denominator
+  ```
+
+  Use this composition only when it makes invariant ownership and call sites
+  clearer or removes meaningful repeated validation. Keep checks inline when a
+  wrapper has only an incidental use, hides domain meaning, or complicates a
+  published ABI or migration.
+- Keep authorization, lifecycle, and live canonical-state checks in the owning
+  contract transition. Do not cache or imply those facts in a reusable value
+  struct.
 - Give shared top-level state `key` only unless transfer or nesting is an explicit requirement.
 - Add `store`, `copy`, or `drop` only when the intended lifecycle requires it.
 - Treat every published struct or enum layout and ability set as fixed across
@@ -125,22 +148,6 @@ or activation transition.
   speculative flags, modes, roles, or governance hooks.
 - Keep a one-field wrapper when it changes abilities, construction rights, type-level domain separation, atomic presence, or serialization. Data shape alone does not prove redundancy.
 - Keep a validated unit wrapper inside the package when it prevents illegal stored values; accept or emit a primitive at an external ABI boundary when exposing the wrapper would leak an internal representation, and validate once at construction.
-- Preserve top-level or dynamic-object-field custody for every `key` object
-  whose identity, ownership, or live state must remain independently
-  discoverable. Do not embed such an object in a normal field or ordinary
-  dynamic-field value, and do not mirror its canonical state for indexer
-  convenience.
-- Choose collection storage by its size bound, lookup pattern, and object-visibility requirements:
-  - Use an inline vector when the contract enforces a safe maximum and entries are naturally accessed by index or iteration as part of the parent.
-  - Use dynamic fields for extensible, typed-key child storage that does not change the parent's struct layout.
-  - Use dynamic object fields when a child has its own `UID` and must remain separately discoverable by ID while attached to the parent.
-  - Use a table for a large map-like collection only when its scale justifies per-entry child storage and cleanup.
-- Before using child dynamic storage, define each child's terminal lifecycle.
-  Close and cancel paths may retain children while the parent remains
-  accessible.
-- Before destroying a parent, remove every child and transfer or destroy it as
-  required so no value becomes unreachable. Recover storage rebates when
-  economically worthwhile.
 
 ## Design authority by scope
 

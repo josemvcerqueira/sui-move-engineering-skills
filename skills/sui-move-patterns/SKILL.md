@@ -20,9 +20,9 @@ or public API from another protocol.
    implementation. Read more than one reference only when the task genuinely
    combines patterns.
 5. Apply the focused `$sui-move-architecture`, `$sui-move-security`,
-   `$sui-move-source-style`, `$sui-move-events-errors`, and
-   `$sui-move-testing` rules that own the underlying invariants. This skill does
-   not weaken or duplicate those standards.
+   `$sui-move-source-style`, and `$sui-move-testing` rules that own the
+   underlying invariants. This skill does not weaken or duplicate those
+   standards.
 6. Report the chosen or rejected pattern, the invariant and ordered sequence,
    the abilities and visibility it requires, its failure and upgrade boundary,
    and the tests that prove the fit.

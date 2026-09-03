@@ -2,6 +2,87 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [1.0.0] - 2026-09-03
+
+This release reduces default context, gives events and errors clearer owners,
+and makes orchestration dependencies explicit.
+
+### Added
+
+- Added conditional references for event design, error design, Move 2024
+  syntax, stateful fixtures, object custody tests, adversarial integrations,
+  event replay tests, and upgrade and dependency tests.
+- Added an explicit complete-suite preflight to `sui-move-guide` and
+  `sui-move-review`.
+- Added validation for suite-only dependency declarations and accidental
+  cross-skill links from independently installable focused skills.
+
+### Changed
+
+- Moved event and replay design into `sui-move-architecture` and error and
+  abort-interface design into `sui-move-source-style`.
+- Consolidated upgrade mechanics in the security reference and reduced the
+  review reference to evidence, posture classification, and proportional
+  reporting.
+- Moved detailed child-storage selection out of the architecture core and into
+  its conditional object-custody reference.
+- Reduced the always-loaded focused standards while preserving their complete
+  rules in one-level bundled references.
+
+### Removed
+
+- Removed `sui-move-events-errors`; its two concerns now load from their
+  invariant-owning architecture and source-style skills.
+
+### Affected skills
+
+- `sui-move-guide`
+- `sui-move-architecture`
+- `sui-move-source-style`
+- `sui-move-security`
+- `sui-move-testing`
+- `sui-move-patterns`
+- `sui-move-review`
+
+### Action required
+
+- Existing users: run `npx skills update -g`, then remove any stale installed
+  copy of `sui-move-events-errors` if the installer does not prune removed
+  skills.
+- Install the complete suite, not only the selected orchestrator, when using
+  `sui-move-guide` or `sui-move-review`.
+
+## [0.9.0] - 2026-09-03
+
+This release adds optional composition of reusable value invariants when it
+makes domain code easier to read.
+
+### Added
+
+- Added an architecture guideline for small sealed value structs that own
+  reusable field invariants while enclosing domain structs add only their own
+  relationships.
+- Kept authorization, lifecycle transitions, and live canonical-state checks
+  in the owning contract transition instead of treating cached values as
+  authority.
+- Added focused tests for the reusable value boundary and each enclosing
+  domain type's additional rules without requiring duplicate boundary matrices.
+
+### Changed
+
+- Made the pattern explicitly optional when a wrapper would obscure domain
+  meaning, add incidental indirection, or complicate published compatibility.
+
+### Affected skills
+
+- `sui-move-architecture`
+- `sui-move-testing`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the reusable value
+  invariant guidance.
+
 ## [0.8.0] - 2026-09-03
 
 This release makes invariant ownership the governing rule for Sui Move module

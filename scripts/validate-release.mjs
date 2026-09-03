@@ -8,11 +8,33 @@ import {
   statSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SKILLS_CLI_VERSION = "1.5.23";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const suiteOnlyDependencies = new Map([
+  [
+    "sui-move-guide",
+    [
+      "sui-move-architecture",
+      "sui-move-source-style",
+      "sui-move-security",
+      "sui-move-testing",
+      "sui-move-patterns",
+      "sui-move-review",
+    ],
+  ],
+  [
+    "sui-move-review",
+    [
+      "sui-move-architecture",
+      "sui-move-source-style",
+      "sui-move-security",
+      "sui-move-testing",
+    ],
+  ],
+]);
 
 function fail(message) {
   console.error(`Validation failed: ${message}`);
@@ -160,6 +182,7 @@ for (const markdownFile of markdownFiles.filter((file) =>
 
 const expectedNames = [];
 const localReferences = [];
+const skillContents = new Map();
 for (const skillFile of collectSkillFiles(repositoryRoot)) {
   const contents = readFileSync(skillFile, "utf8");
   const frontmatter = contents.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -179,20 +202,49 @@ for (const skillFile of collectSkillFiles(repositoryRoot)) {
   if (!existsSync(join(dirname(skillFile), "agents", "openai.yaml"))) {
     fail(`${name} has no agents/openai.yaml metadata`);
   }
+  if (
+    suiteOnlyDependencies.has(name) &&
+    !description.includes("Requires the complete suite installation")
+  ) {
+    fail(`${name} must declare its complete-suite installation requirement`);
+  }
 
   for (const match of contents.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
     const target = match[1].split("#", 1)[0].split("?", 1)[0];
     if (!target || /^(?:[a-z][a-z0-9+.-]*:|#)/i.test(target)) continue;
 
-    if (!existsSync(resolve(dirname(skillFile), target))) {
+    const resolvedTarget = resolve(dirname(skillFile), target);
+    if (!existsSync(resolvedTarget)) {
       fail(`${skillFile} links to missing local file ${target}`);
+    }
+    const relativeTarget = relative(dirname(skillFile), resolvedTarget);
+    const crossesSkillBoundary =
+      relativeTarget === ".." || relativeTarget.startsWith(`..${sep}`);
+    if (crossesSkillBoundary && !suiteOnlyDependencies.has(name)) {
+      fail(`${name} is independently installable but links outside its skill`);
     }
     localReferences.push({ name, target });
   }
 
+  skillContents.set(name, contents);
   expectedNames.push(name);
 }
 expectedNames.sort();
+
+for (const [name, dependencies] of suiteOnlyDependencies) {
+  const contents = skillContents.get(name);
+  if (!contents) {
+    fail(`suite-only skill ${name} is missing`);
+    continue;
+  }
+  for (const dependency of dependencies) {
+    if (!expectedNames.includes(dependency)) {
+      fail(`${name} requires missing skill ${dependency}`);
+    } else if (!contents.includes(dependency)) {
+      fail(`${name} does not name required skill ${dependency}`);
+    }
+  }
+}
 
 if (process.exitCode) process.exit(process.exitCode);
 
