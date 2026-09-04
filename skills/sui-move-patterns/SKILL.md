@@ -1,6 +1,6 @@
 ---
 name: sui-move-patterns
-description: Select, compare, implement, or review reusable Sui Move design patterns for misplaced cross-package logic, capability-backed ephemeral authorization, sealed same-PTB adapter handoffs, asset-backed deferred fungibility, and emergency replacement of unsafe shared state. Use when a task asks for a named pattern, a reusable implementation shape, or a choice among these designs; use the focused architecture, security, source, event, and testing skills for ordinary standards work.
+description: Patterns for Sui Move invariant ownership, ephemeral authorization, same-PTB adapter custody, deferred fungibility, and unsafe shared-state retirement. Use when selecting, comparing, implementing, or reviewing a named pattern or reusable design shape; use focused skills for ordinary standards work.
 ---
 
 # Sui Move Patterns
@@ -11,21 +11,27 @@ or public API from another protocol.
 
 ## Select the pattern
 
-1. State the problem without naming a proposed solution.
+1. State the problem without naming a proposed solution. The statement is ready
+   when it names the failing or required invariant instead of a pattern.
 2. Identify the invariant owner, transaction boundary, custody boundary,
-   authority source, and publication status that constrain the design.
+   authority source, and publication status. The constraint map is complete only
+   when every affected asset, authority, and callable package version is
+   accounted for.
 3. Use the routing table below. Reject every pattern whose applicability
-   boundary does not match.
+   boundary does not match; selection is complete only when one row fits or all
+   rows are rejected.
 4. Read the selected reference completely before recommending or changing the
    implementation. Read more than one reference only when the task genuinely
-   combines patterns.
+   combines patterns, and name the seam between them.
 5. Apply the focused `$sui-move-architecture`, `$sui-move-security`,
    `$sui-move-source-style`, and `$sui-move-testing` rules that own the
-   underlying invariants. This skill does not weaken or duplicate those
-   standards.
+   underlying invariants. This step is complete when every selected pattern
+   obligation maps to an owning focused rule or an explicit target decision.
 6. Report the chosen or rejected pattern, the invariant and ordered sequence,
    the abilities and visibility it requires, its failure and upgrade boundary,
-   and the tests that prove the fit.
+   and the tests that prove the fit. The recommendation is complete only when
+   every verification obligation in the selected reference is covered or
+   recorded as a gap.
 
 ## Pattern routing
 

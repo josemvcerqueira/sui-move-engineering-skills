@@ -24,3 +24,8 @@ adapter fingerprinting is in scope.
 - Detect mutable dependency selectors, wrong repositories, wrong
   subdirectories, edge rebinding, and lockfile drift.
 - Review a new external revision before updating a committed fingerprint.
+
+Coverage is complete only when compatible and incompatible upgrades, old and
+new callable generations, capability and policy transitions, migrations,
+dependency relinking, and deployed ABI drift each have passing evidence or a
+reported environment gap.

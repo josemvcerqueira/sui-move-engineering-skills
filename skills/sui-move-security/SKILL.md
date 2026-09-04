@@ -1,6 +1,6 @@
 ---
 name: sui-move-security
-description: Secure Sui Move transitions, authority, signed actions, replay controls, bounded state, arithmetic, asset custody, DeFi shares, rewards, staking, farms, lending, AMMs, adapters, time, oracles, randomness, pauses, versions, and upgrades. Use for any privileged, stateful, economic, cryptographic, shared-object, or external-integration Move change or review.
+description: Security for privileged, stateful, economic, cryptographic, shared-object, and external-integration Sui Move code. Use when designing, changing, or reviewing transitions, authority, replay, bounded work, custody, DeFi, time, oracles, randomness, pauses, dependencies, or upgrades.
 ---
 
 # Sui Move Security
@@ -9,7 +9,20 @@ Make invalid transitions unrepresentable where possible and reject the rest befo
 
 Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
 
-Before code, name the assets and safety, conservation, liveness, and exit invariants; authorities and worst-case compromise; untrusted callers, composition, and dependencies; and required failure behavior.
+## Build the threat model
+
+1. Before code, name every asset; safety, conservation, liveness, and exit
+   invariant; authority and worst-case compromise; untrusted caller,
+   composition, and dependency; and required failure behavior. The threat model
+   is complete only when every changed transition and asset has been mapped.
+2. Trace every public or entry function, same-PTB composition, and reachable
+   multi-transaction sequence in execution order. The trace is complete when
+   each guard, read, proposed value, postcondition, mutation, asset movement,
+   event, and return is accounted for.
+3. Apply every relevant rule below and each triggered reference to every traced
+   path. Reconcile each asset type in its own conservation ledger.
+4. Use the proof obligations below as the completion gate, reporting every
+   unresolved assumption as a security gap.
 
 For each public or entry function, same-PTB composition, and reachable
 multi-transaction sequence, prove all three properties:
@@ -19,7 +32,7 @@ multi-transaction sequence, prove all three properties:
 - Returned objects, capabilities, witnesses, receipts, and other values cannot
   be recombined to violate an invariant.
 
-Security is not established until every callable path and composition preserves
+Security is complete only when every callable path and composition preserves
 the package's safety, conservation, authority, liveness, and exit invariants.
 
 Before any irreversible or state-gating transition, prove that every required
@@ -109,21 +122,12 @@ Reject a setter whose new value equals the current value before mutation, with i
 - Avoid public inputs that cause unbounded deserialization, iteration, event size, or dynamic-field growth.
 - Keep pending work and retry state bounded and explicitly releasable.
 
-## Defend time, prices, and randomness
+## Load external-input guidance when applicable
 
-- Enforce every invariant on chain. Treat each public function as directly callable and PTB-composable; an SDK, UI, or expected transaction shape is never authority.
-- Use the canonical immutable `Clock` for near-real-time security decisions. Define units and inclusive or exclusive deadline semantics, and reject stale or impossible future timestamps where relevant; epoch-start time is only a coarse source.
-- When execution can change between signing and inclusion, bind the transition to user- or signer-approved maximum input, minimum output, and deadline. Never assume favorable transaction ordering.
-- Before economic use, validate oracle source and feed identity, original type, pair, units or exponent, valid range, update time and freshness, confidence or deviation, liquidity assumptions, and whether a caller can select among historical updates. Define fail-closed or bounded fallback behavior.
-- Never derive economic randomness from object IDs, sender, `Clock`, or
-  transaction data.
-- For `sui::random`:
-  - keep the economic endpoint private `entry`;
-  - create `RandomGenerator` inside the consuming module;
-  - obey post-random PTB restrictions;
-  - balance resource use across outcomes;
-  - use commit-reveal with inputs fixed before reveal when atomic abort
-    selection remains unsafe.
+For deadlines, time-dependent authorization, slippage, oracles, price feeds, or
+random outcomes, read
+[Time, oracles, and randomness](references/time-oracles-randomness.md)
+completely before designing, changing, or reviewing the transition.
 
 ## Load DeFi guidance when applicable
 

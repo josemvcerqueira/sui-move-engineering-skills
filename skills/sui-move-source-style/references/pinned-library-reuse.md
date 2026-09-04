@@ -22,3 +22,9 @@ Use this procedure before adding, replacing, or reviewing arithmetic, conversion
 - Confirm availability for the exact integer width or collection type. Use `saturating_*` only when saturation is the documented result, never as overflow recovery.
 - Read a macro's definition before use. Because expansion occurs at the call site, confirm argument evaluation, capture and borrow behavior, short-circuiting, abort location, and lint output.
 - Do not use a macro merely to shorten code.
+
+## Completion gate
+
+The search is complete only when the root package's compiled revisions have
+been resolved, matching dependency sources have been inspected, and each custom
+helper or wrapper has a domain semantic the pinned implementation does not own.

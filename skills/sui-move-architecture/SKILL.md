@@ -1,6 +1,6 @@
 ---
 name: sui-move-architecture
-description: Design secure, minimal Sui Move packages, modules, state, events, replay contracts, authority, and dependency boundaries. Use when adding, simplifying, or reviewing packages, modules, shared objects, capabilities, witnesses, hot potatoes, storage fields, events, payloads, emitters, public types, adapters, indexing guarantees, or cross-package composition.
+description: Architecture for Sui Move on-chain scope, invariant ownership, package and module boundaries, state and value types, authority, custody, abilities, public APIs, events and replay, and dependency seams. Use when designing, changing, simplifying, or reviewing any of those boundaries.
 ---
 
 # Sui Move Architecture
@@ -9,14 +9,38 @@ Design the smallest on-chain system that preserves consensus, custody, compositi
 
 Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
 
-Read [Storage and indexer-visible object custody](references/indexer-visible-object-custody.md)
-completely when choosing inline or dynamic child storage, or when a `key` object
-is stored, nested, wrapped, indexed, or expected to remain independently
-discoverable by its original ID.
+## Apply the standard
 
-Read [Events](references/events.md) completely when adding, compacting,
-changing, indexing, or reviewing events, payload fields, emitters, or replay
-promises.
+1. Establish the target's publication status, accepted decisions, compatibility
+   promises, and pinned dependencies. This context is complete when each source
+   of authority for the design has been located or recorded as an evidence gap.
+2. Map every affected invariant to its canonical state, owning module,
+   authorized transitions, public consumers, and reconstruction source. The map
+   is complete when every changed fact and callable seam has one owner.
+3. Apply every relevant rule below and every triggered reference to that map.
+   Resolve each conflict in favor of the target's accepted contract rather than
+   this skill's examples.
+4. Finish only when the architecture gate accounts for every changed package,
+   module, state field, authority, public type or function, event, and external
+   dependency.
+
+## Load matching references
+
+- **Object custody:** Read
+  [Storage and indexer-visible object custody](references/indexer-visible-object-custody.md)
+  completely when choosing inline or dynamic child storage, or when a `key`
+  object is stored, nested, wrapped, indexed, or expected to remain discoverable
+  by its original ID.
+- **Events:** Read [Events](references/events.md) completely when adding,
+  compacting, changing, indexing, or reviewing events, payload fields, emitters,
+  or replay promises.
+- **Value types:** Read
+  [Reusable value invariants](references/reusable-value-invariants.md)
+  completely when extracting, composing, simplifying, or reviewing a sealed
+  value type, validated unit wrapper, or field relationship reused by multiple
+  domain types.
+
+Read every matching reference; keep the loaded set to the triggered branches.
 
 ## Decide what belongs on chain
 
@@ -114,24 +138,6 @@ or activation transition.
 - Use phantom type parameters for domain separation when no value of the type is stored.
 - Keep reserves, fees, pending burns, allocations, refunds, and claims in separate balances when their ownership or terminal treatment differs.
 - Use the defining module's exclusive construction and field access to enforce the type's invariants. Expose only constructors and mutation operations that create valid state and preserve those invariants.
-- When several domain values genuinely reuse one stable field relationship,
-  consider a small sealed value struct with private fields and controlled
-  construction. Let that value struct own the shared invariant, then compose it
-  into domain structs that enforce only their additional relationships. For
-  example:
-
-  ```text
-  BoundedValue(min, current, max) owns min <= current <= max
-  Fee(denominator, bounds: BoundedValue) adds denominator > 0 and bounds.max <= denominator
-  ```
-
-  Use this composition only when it makes invariant ownership and call sites
-  clearer or removes meaningful repeated validation. Keep checks inline when a
-  wrapper has only an incidental use, hides domain meaning, or complicates a
-  published ABI or migration.
-- Keep authorization, lifecycle, and live canonical-state checks in the owning
-  contract transition. Do not cache or imply those facts in a reusable value
-  struct.
 - Give shared top-level state `key` only unless transfer or nesting is an explicit requirement.
 - Add `store`, `copy`, or `drop` only when the intended lifecycle requires it.
 - Treat every published struct or enum layout and ability set as fixed across
@@ -146,8 +152,6 @@ or activation transition.
   when an accepted upgrade plan requires them.
 - Otherwise use a new type or a predesigned dynamic-extension seam instead of
   speculative flags, modes, roles, or governance hooks.
-- Keep a one-field wrapper when it changes abilities, construction rights, type-level domain separation, atomic presence, or serialization. Data shape alone does not prove redundancy.
-- Keep a validated unit wrapper inside the package when it prevents illegal stored values; accept or emit a primitive at an external ABI boundary when exposing the wrapper would leak an internal representation, and validate once at construction.
 
 ## Design authority by scope
 
@@ -168,4 +172,12 @@ or activation transition.
 
 ## Architecture gate
 
-Reject the design when deleting the proposed on-chain logic would not weaken a consensus transition, asset invariant, trustless composition seam, or independent reconstruction. Reject speculative roles, modes, governance hooks, and public APIs without a concrete caller and invariant.
+Architecture is complete only when every changed fact has a canonical owner,
+every public seam has a concrete caller and invariant, every stored value has a
+required lifecycle, and every promised off-chain fact has a durable
+reconstruction source.
+
+Reject on-chain logic whose removal would not weaken a consensus transition,
+asset invariant, trustless composition seam, or independent reconstruction.
+Reject speculative roles, modes, governance hooks, and public APIs without a
+concrete caller and invariant.

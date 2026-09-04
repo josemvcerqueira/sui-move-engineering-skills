@@ -71,3 +71,9 @@ assert!(recipient != @0x0, protocol::errors::invalid_recipient!());
 - Before publication, make compaction a deliberate one-time decision.
 - After publication, append new errors. Do not renumber, reuse, relocate, or
   silently reinterpret existing diagnostics.
+
+## Completion gate
+
+Error work is complete only when every changed abort has one owner, stable code,
+descriptive meaning, deliberate precedence, exact test oracle, and compatible
+published behavior.

@@ -73,3 +73,7 @@ creates a concrete safety, custody, liveness, compatibility, or public-claim
 failure. Otherwise report a missing roadmap, custody record, `Publisher` use,
 or immutability proof as a question or validation gap. Do not equate
 architectural completeness with maximum machinery.
+
+Classification is complete only when exactly one posture fits the accepted
+lifecycle and old-bytecode risk, with capability custody and operational claims
+supported by deployment evidence or reported as gaps.

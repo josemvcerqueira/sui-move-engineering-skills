@@ -25,3 +25,7 @@ Use small, ability-free hot-potato fixtures:
   reads, assertions, and one `end`.
 - Never touch `test_scenario`, the scenario field, context internals, or fixture
   `Option` internals directly in a test body.
+
+The fixture is complete only when setup has one entry, transaction advancement
+and context access use the fixture API, and one consuming end path accounts for
+every carried resource.

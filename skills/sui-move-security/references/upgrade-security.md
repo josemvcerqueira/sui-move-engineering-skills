@@ -5,17 +5,6 @@ operational versioning, shared-state migration, or dependency relinking is in
 scope. Also apply them when old and new package versions can both reach shared
 protocol state changed by the task.
 
-## Contents
-
-- [Choose only required machinery](#choose-only-required-machinery)
-- [Treat package versions as concurrent APIs](#treat-package-versions-as-concurrent-apis)
-- [Decide provenance at publication](#decide-provenance-at-publication)
-- [Take validated capability custody](#take-validated-capability-custody)
-- [Bind native upgrade authorization](#bind-native-upgrade-authorization)
-- [Preserve state and cut over deliberately](#preserve-state-and-cut-over-deliberately)
-- [Preserve exits and dependency liveness](#preserve-exits-and-dependency-liveness)
-- [Handle already-published gaps](#handle-already-published-gaps)
-
 ## Choose only required machinery
 
 - Treat a package as intentionally immutable only when the accepted design
@@ -136,3 +125,9 @@ protocol state changed by the task.
   after a raw upgrade changes the cap's current package ID.
 - Report an unrepairable old-version path as residual risk. Do not present the
   pre-publication method as a retroactive fix.
+
+## Completion gate
+
+Upgrade security is complete only when every callable generation and shared
+invariant is accounted for, capability custody is proven, compatibility and
+cutover behavior are tested, and each unrepairable old-version path is reported.

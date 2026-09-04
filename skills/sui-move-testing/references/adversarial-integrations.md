@@ -24,3 +24,7 @@ integration.
 - Prove no attacker-controlled budget, input, state, or surrounding PTB can
   make only favorable outcomes commit. Test internal generator construction
   and commit-reveal liveness when applicable.
+
+Coverage is complete only when every untrusted input, bound domain, boundary,
+failure mode, and selective-commit sequence has a deterministic test or a
+reported environment gap.

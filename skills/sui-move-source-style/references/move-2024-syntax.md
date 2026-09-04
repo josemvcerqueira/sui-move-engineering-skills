@@ -74,3 +74,9 @@ compiler when it differs.
 - Verify partial inference with the pinned compiler. `_` is an expression-level
   type placeholder, not a type permitted in signatures, constants, or datatype
   fields.
+
+## Completion gate
+
+Syntax work is complete only when every edited receiver, index, identity read,
+and inferred type preserves its domain meaning and compiles under the package's
+pinned edition and compiler.

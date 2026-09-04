@@ -2,6 +2,50 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [1.1.0] - 2026-09-04
+
+This release makes every skill more predictable for agents by separating
+universal instructions from conditional reference branches and giving each
+workflow a checkable completion bound.
+
+### Added
+
+- Added conditional references for reusable value invariants, time, oracles and
+  randomness, and function shape and locals.
+- Added explicit workflows and completion criteria to the architecture, guide,
+  patterns, review, security, source-style, and testing skills.
+- Added completion gates to event, upgrade-posture, DeFi, upgrade-security,
+  error, Move 2024 syntax, pinned-library, and specialized testing references.
+
+### Changed
+
+- Tightened model-facing descriptions so each skill carries only its distinct
+  invocation branches in always-loaded context.
+- Marked `sui-move-guide` as user-invoked while preserving its role as the one
+  explicit router for the complete suite.
+- Kept universal workflows and core rules in each `SKILL.md`, while moving
+  branch-only value-type, external-input, and function-refactoring guidance
+  behind precise pointers.
+- Reworked architecture, source-style, and testing reference routers around
+  front-loaded branch names and exact load conditions.
+- Removed redundant reference tables of contents and replaced negative routing
+  language with positive loaded-set instructions.
+
+### Affected skills
+
+- `sui-move-guide`
+- `sui-move-architecture`
+- `sui-move-source-style`
+- `sui-move-security`
+- `sui-move-testing`
+- `sui-move-patterns`
+- `sui-move-review`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the revised workflows,
+  pointers, and bundled references.
+
 ## [1.0.0] - 2026-09-03
 
 This release reduces default context, gives events and errors clearer owners,

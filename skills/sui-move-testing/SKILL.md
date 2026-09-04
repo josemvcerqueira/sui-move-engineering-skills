@@ -1,6 +1,6 @@
 ---
 name: sui-move-testing
-description: Build risk-based Sui Move tests, exact abort checks, guard-precedence cases, stateful hot-potato fixtures, math properties, event reducers, dependency verification, and release gates. Use when adding, changing, fixing, or reviewing Move tests or behavior.
+description: Testing for Sui Move invariants, exact aborts, guard precedence, stateful fixtures, arithmetic properties, event replay, adversarial integrations, upgrades, dependencies, and release gates. Use when adding, changing, fixing, or reviewing Move behavior or tests.
 ---
 
 # Sui Move Testing
@@ -8,6 +8,18 @@ description: Build risk-based Sui Move tests, exact abort checks, guard-preceden
 Test the invariant and threat surface, not only the happy-path function name.
 
 Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
+
+## Build the risk matrix
+
+1. Inventory every changed behavior, invariant, public or entry path, asset,
+   authority, lifecycle edge, event, dependency, and upgrade seam. The inventory
+   is complete when every production change has a test owner.
+2. Mark each risk layer below applicable or inapplicable for every inventoried
+   behavior, with a reason for each inapplicable layer.
+3. Read every matching specialized reference, then map each applicable risk to
+   a direct test, property, structural check, integration check, or release gate.
+4. Run the release gates below and use the final completion gate to report the
+   result.
 
 ## Cover every risk layer
 
@@ -24,28 +36,28 @@ Target repository instructions, accepted design records, pinned toolchain behavi
   signatures, struct or enum layouts, and abilities.
 - Deployment and dependencies: dry run, finality, normalized artifacts, exact pins, and live external ABI checks.
 
-## Load specialized guidance only when applicable
+## Load matching references
 
-- For `test_scenario`, multi-transaction, or resource-carrying setup, read
-  [Stateful fixtures](references/stateful-fixtures.md) completely.
-- For bounded collections, dynamic child storage, identity-bearing objects,
-  wrapping, or key-only returned objects, read
+- **Fixtures:** For `test_scenario`, multi-transaction, or resource-carrying
+  setup, read [Stateful fixtures](references/stateful-fixtures.md) completely.
+- **Object custody:** For bounded collections, dynamic child storage,
+  identity-bearing objects, wrapping, or key-only returned objects, read
   [Object custody and storage tests](references/object-custody-tests.md)
   completely.
-- For time, oracles, signatures, hostile assets, randomness, callback-like
-  composition, or external integrations, read
+- **Adversarial integrations:** For time, oracles, signatures, hostile assets,
+  randomness, callback-like composition, or external integrations, read
   [Adversarial integration tests](references/adversarial-integrations.md)
   completely.
-- For events, payloads, indexers, or replay, read
+- **Event replay:** For events, payloads, indexers, or replay, read
   [Event replay tests](references/event-replay-tests.md) completely.
-- For publication, upgrades, migration, activation, dependency relinking,
-  deployed ABI, or fingerprints, read
+- **Upgrades and dependencies:** For publication, upgrades, migration,
+  activation, dependency relinking, deployed ABI, or fingerprints, read
   [Upgrade and dependency tests](references/upgrade-dependency-tests.md)
   completely.
 
-Read every matching reference for a task, but do not load unrelated test
-variants. A complete review still loads every reference whose risk appears in
-the target.
+Read every matching reference for a task. Keep the loaded set to test variants
+whose risk appears in the target; a complete review still loads every matching
+reference.
 
 ## Write direct tests
 
@@ -109,4 +121,11 @@ sui move lint --warnings-are-errors
 sui move test --lint
 ```
 
-Also run repository formatting, source-boundary, dependency-pin, external-ABI, coverage, and `git diff --check` gates when present. If the pinned coverage tool misrepresents a branch, use named branch tests and document the limitation instead of inventing a false metric.
+Also run repository formatting, source-boundary, dependency-pin, external-ABI,
+coverage, and `git diff --check` gates when present. If the pinned coverage tool
+misrepresents a branch, use named branch tests and document the limitation
+instead of inventing a false metric.
+
+Testing is complete only when every applicable risk in the matrix has passing
+evidence, exact failure behavior is pinned, all available gates pass, and every
+unavailable or unreliable check is reported.

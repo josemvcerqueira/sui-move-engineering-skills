@@ -1,6 +1,7 @@
 ---
 name: sui-move-guide
-description: Route Sui Move engineering tasks to the smallest applicable skill sequence. Use when a developer asks which Sui Move standard applies, wants help routing a Move task, or wants the complete Sui Move development flow. Requires the complete suite installation to execute the selected route.
+description: Route a Sui Move task to the smallest applicable skill sequence. Requires the complete suite installation to execute a route.
+disable-model-invocation: true
 ---
 
 # Sui Move Guide
@@ -8,12 +9,20 @@ description: Route Sui Move engineering tasks to the smallest applicable skill s
 Route the task to the smallest set of Sui Move skills that covers the risk. Use
 this skill as an explicit catalog, not a coding standard.
 
-## Require the complete suite
+## Route the task
 
-Use the catalog to explain a route even when only this skill is available.
-Before applying the route, verify that every selected sibling skill is
-installed. If one is missing, tell the user to install the complete suite; do
-not reconstruct or silently skip its rules.
+1. Decide whether the user wants only a route or wants the route executed. A
+   route-only request is complete with a named sequence and one reason per
+   selected skill.
+2. Inventory every affected boundary and risk, then select the smallest sequence
+   that owns all of them. The inventory is complete when each requested change
+   maps to at least one selected skill.
+3. Before execution, verify every selected sibling skill is installed. If one is
+   missing, stop execution and tell the user to install the complete suite;
+   still provide the route without recreating the missing rules.
+4. Execute the selected skills in the stated order, reading each once. Execution
+   is complete only when every selected skill's completion gate is satisfied or
+   its evidence gap is reported.
 
 ## Skills
 
@@ -91,6 +100,10 @@ Use review. It loads every focused standard and requires the complete suite.
 
 ## Routing rule
 
-When uncertain, include security and testing. Do not load every skill for a
-narrow naming question, and do not treat source style as a substitute for
-architecture or security.
+Use a focused skill for a narrow question. When uncertainty could affect
+behavior, include security and testing. Keep source style, architecture, and
+security distinct: each must cover the risks it owns.
+
+The route is complete when every affected boundary and risk has an owner, no
+selected skill is redundant, and the execution order preserves design before
+implementation and tests before final review.

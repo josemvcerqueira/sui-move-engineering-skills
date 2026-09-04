@@ -48,3 +48,10 @@ Apply these rules to shares, vaults, liquid staking, farms, reward programs, AMM
 - Include rounding direction in function names.
 - Test zero, one atomic unit, maximum supported values, both sides of thresholds, intermediate overflow, exact division, and one-unit remainders.
 - Test inverse operations against a documented dust bound.
+
+## Completion gate
+
+The DeFi review is complete only when every economic unit has one authority and
+formula, every profitable sequence preserves solvency and cohort eligibility,
+every remainder has an owner, and operation and sequence tests reconcile each
+asset independently.

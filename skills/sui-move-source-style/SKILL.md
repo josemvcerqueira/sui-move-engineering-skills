@@ -1,6 +1,6 @@
 ---
 name: sui-move-source-style
-description: Apply consistent Sui Move source organization, naming, visibility, abilities, signatures, errors, abort ownership, `self` receiver naming, receiver and index syntax, direct UID access, pinned standard-library and framework reuse, macros, local-variable discipline, API vocabulary, documentation, and test-only conventions. Use when writing, simplifying, refactoring, or reviewing any `.move` source or test file, including errors, assertions, and guard diagnostics.
+description: Source conventions for Sui Move organization, names, visibility, abilities, signatures, errors, syntax, pinned-library reuse, locals, API vocabulary, documentation, and test-only seams. Use when writing, simplifying, refactoring, or reviewing `.move` production or test files.
 ---
 
 # Sui Move Source Style
@@ -8,6 +8,20 @@ description: Apply consistent Sui Move source organization, naming, visibility, 
 Make each file clearly communicate what it owns, who may change it, and how its state is created, updated, and retired, without requiring the reader to trace unrelated modules or call sites.
 
 Target repository instructions, accepted design records, pinned toolchain behavior, and published compatibility commitments take precedence over this standard's examples.
+
+## Apply the standard
+
+1. Establish the package's edition, compiler and dependency pins, publication
+   status, local instructions, and existing section vocabulary. Context is
+   complete when each is known or recorded as an evidence gap.
+2. Inspect every changed declaration and function in production and test code,
+   including observable evaluation, abort, mutation, transfer, and emission
+   order.
+3. Read every matching reference below, then apply all relevant rules while
+   preserving target behavior and published compatibility.
+4. Finish only when every changed file has been checked for ownership,
+   organization, imports, names, visibility, abilities, signatures, errors,
+   syntax, locals, API vocabulary, documentation, and test-only seams.
 
 ## Order module sections
 
@@ -38,26 +52,27 @@ Format function bodies as logical paragraphs, with one blank line between valida
 - Do not explicitly import Move 2024 implicit prelude modules such as `std::vector`, `std::option`, `sui::object`, `sui::transfer`, or `sui::tx_context`.
 - Use aliases for clear receiver methods or real collisions, not to hide domain distinctions.
 
-## Reuse pinned libraries before writing helpers
+## Load matching references
 
-Before adding, replacing, or reviewing arithmetic, conversion, collection,
-iteration, object, transfer, macro, or framework-wrapper logic, read
-[Pinned library reuse](references/pinned-library-reuse.md) completely. Prefer
-the pinned implementation when its semantics match; do not add a wrapper solely
-to rename it.
+- **Library reuse:** Read
+  [Pinned library reuse](references/pinned-library-reuse.md) completely before
+  adding, replacing, or reviewing arithmetic, conversion, collection,
+  iteration, object, transfer, macro, or framework-wrapper logic.
+- **Move 2024 syntax:** Read
+  [Move 2024 source syntax](references/move-2024-syntax.md) completely before
+  changing or reviewing receiver aliases, index syntax, direct UID access, or
+  partial generic inference.
+- **Errors:** Read [Errors](references/errors.md) completely before changing or
+  reviewing errors, assertions, abort ownership, guard precedence, or diagnostic
+  compatibility.
+- **Function shape:** Read
+  [Function shape and locals](references/function-shape-and-locals.md)
+  completely before splitting or simplifying a multi-phase function, extracting
+  helpers, inlining locals, or changing pass-through parameters.
 
-## Load Move 2024 syntax guidance when applicable
-
-Before adding, changing, simplifying, or reviewing receiver aliases, index
-syntax, direct UID access, or partial generic inference, read
-[Move 2024 source syntax](references/move-2024-syntax.md) completely. Follow the
-target package's pinned edition and compiler.
-
-## Load error guidance when applicable
-
-Before adding, changing, testing, or reviewing errors, assertions, abort
-ownership, guard precedence, or diagnostic compatibility, read
-[Errors](references/errors.md) completely.
+Read every matching reference; keep the loaded set to the triggered branches.
+Follow the target package's pinned edition and compiler when a reference
+example differs.
 
 ## Name by domain meaning
 
@@ -113,51 +128,6 @@ Use `&` for reads, `&mut` for actual mutation, and by value for resources the fu
 Keep construction and publication separate when possible: `new` returns the owned value and `share` consumes it into shared state.
 
 When a returned object has `key` but not `store`, provide its consuming sink in the defining module, such as `share(self)` for shared state or `keep(self, ctx)` for sender delivery. Do not strand a value that callers cannot transfer or share themselves.
-
-## Decompose multi-phase transitions aggressively
-
-- **Monolithic multi-phase transition:** One function mixes several independent
-  protocol phases and forces reviewers to track multiple invariants and nested
-  branches simultaneously.
-- Keep the owner function as an ordered transition summary. Extract cohesive
-  phases into domain-named private helpers.
-- Treat two independently nameable phases, or one phase-specific nested branch,
-  as a decomposition signal. Do not wait for a line-count threshold when
-  extraction makes invariant boundaries visible.
-- Let each helper own one phase, such as eligibility derivation, settlement
-  preparation, accounting reconciliation, custody movement, or final cleanup.
-  Give it the narrowest inputs and result that phase requires.
-- Preserve validation, borrow, evaluation, abort, mutation, asset-movement, and
-  emission order exactly when extracting. The owner function must still expose
-  the complete protocol sequence at a glance.
-- Keep extracted helpers private unless a real package or public caller needs
-  them. Do not widen visibility for tests.
-- Do not extract generic `handle_*`, `process_*`, pass-through, or arbitrary
-  line-count helpers. Keep a phase inline when extraction would hide ordering,
-  split one invariant across functions, or add indirection without reducing the
-  reasoning surface.
-
-## Use locals deliberately
-
-- **Redundant single-use temporary:** A local that merely names a pure
-  expression for one later use, whether as an argument, condition, arithmetic
-  operand, or return value.
-- Inline that local only when its name adds no domain meaning and moving the
-  expression preserves borrow lifetime, evaluation order, abort order, and
-  mutation order.
-- Use count alone never proves redundancy.
-- Keep a local when it is reused, names a unit or protocol role, freezes pre-mutation state for a later event, separates validation from mutation, narrows a borrow, or makes nontrivial arithmetic auditable.
-- Never inline across a mutation or external call when the later read could observe different state. Do not recompute a proposed value after mutation merely to reduce locals.
-- Construct a unit witness, one-off wrapper, direct getter, or immediate return at the call site when no intermediate invariant needs a name.
-- Let assertion helpers validate. Do not make them return an unchanged read solely to save the owning transition from reading and naming its own pre-state.
-- Do not add a pass-through parameter solely to relay or return a value unchanged; another module should receive it only when that module validates, transforms, consumes, or stores it.
-- A witness, marker, or capability used for type-level authority is not unused.
-  Keep it as `_` or a meaningful `_role` name.
-- Remove an unread parameter from private code and from a signature already
-  changing for another reason.
-- Otherwise, do not churn a published or intentionally uniform forwarding
-  signature merely to drop it. Keep the parameter anonymous and document the
-  compatibility reason only when it is not obvious.
 
 ## Use precise API vocabulary
 

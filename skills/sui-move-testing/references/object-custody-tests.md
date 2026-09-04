@@ -23,3 +23,7 @@ key-only returned objects.
 - When historical object state is promised, verify the checkpoint,
   transaction-effects, archival, or indexer path for every relevant committed
   version. Prove failed transactions create no apparent object transition.
+
+Coverage is complete only when every child and returned object has a tested live
+lookup, custody transition, terminal path, reconstruction source, and failure
+behavior matching its storage invariant.

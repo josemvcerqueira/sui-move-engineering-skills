@@ -3,15 +3,6 @@
 Apply these rules when adding, compacting, changing, testing, indexing, or
 reviewing events, payload fields, emitters, or replay promises.
 
-## Contents
-
-- [Make events replay complete](#make-events-replay-complete)
-- [Audit necessity event by event](#audit-necessity-event-by-event)
-- [Design identity deliberately](#design-identity-deliberately)
-- [Describe accounting precisely](#describe-accounting-precisely)
-- [Centralize event construction](#centralize-event-construction)
-- [Preserve event compatibility](#preserve-event-compatibility)
-
 ## Make events replay complete
 
 From package publication onward, make every economically relevant mutable fact
@@ -135,3 +126,9 @@ public(package) fun emit_event<T: copy + drop>(payload: T) {
 - Adding emission only to upgraded bytecode does not make replay complete while
   callers can use an old version. Gate old mutators through an accepted
   operational transition before promising complete replay.
+
+## Completion gate
+
+Event design is complete only when every promised mutable fact can be replayed
+from durable sources, every payload field has a necessary recovery role, and
+every changed schema or emission condition has a compatible migration and test.

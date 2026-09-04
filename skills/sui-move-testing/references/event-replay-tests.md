@@ -26,3 +26,7 @@ are in scope.
   before release.
 - Keep explicit tests for deliberate redundancy such as delta plus total,
   old/new pairs, reconciliation snapshots, and values removed or delivered.
+
+Coverage is complete only when every payload field and emission condition is
+asserted, the reducer reconstructs every promised fact, and failed or migrated
+paths preserve the declared event ABI.
