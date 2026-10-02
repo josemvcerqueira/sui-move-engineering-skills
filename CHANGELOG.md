@@ -2,6 +2,32 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [1.2.0] - 2026-10-02
+
+This release makes readable function bodies checkable: branching derivations
+get one guard-clause helper per value, and locals carry domain names.
+
+### Added
+
+- Added a flatten-branching-derivations rule to the function shape and locals
+  reference: one helper per derived value, special cases as early-return guard
+  clauses, shared conditions as named predicates.
+- Added a local-naming rule to `sui-move-source-style`: name locals for their
+  domain role and never shadow a called function's name.
+
+### Changed
+
+- Extended the function-shape reference's load condition and completion gate to
+  cover chained `else if` derivations.
+
+### Affected skills
+
+- `sui-move-source-style`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the revised reference.
+
 ## [1.1.0] - 2026-09-04
 
 This release makes every skill more predictable for agents by separating
