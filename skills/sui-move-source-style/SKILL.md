@@ -68,7 +68,8 @@ Format function bodies as logical paragraphs, with one blank line between valida
 - **Function shape:** Read
   [Function shape and locals](references/function-shape-and-locals.md)
   completely before splitting or simplifying a multi-phase function, extracting
-  helpers, inlining locals, or changing pass-through parameters.
+  helpers, inlining locals, flattening chained `else if` derivations, or
+  changing pass-through parameters.
 
 Read every matching reference; keep the loaded set to the triggered branches.
 Follow the target package's pinned edition and compiler when a reference
@@ -77,6 +78,10 @@ example differs.
 ## Name by domain meaning
 
 - Use lower snake case for packages, modules, files, functions, variables, and package macros.
+- Name locals for their domain role, such as `accepted_amount`, `is_new_member`,
+  or `refund_pool`, not for their type or position, such as `amount`, `exists`,
+  `current`, `last`, `a`, or `tmp`. A local must not reuse the name of a function
+  it calls, as in `let leaf = leaf(...)`.
 - Use UpperCamelCase for structs and enums.
 - Use uppercase snake case for ordinary constants.
 - Use `EUpperCamelCase` for named error constants.
