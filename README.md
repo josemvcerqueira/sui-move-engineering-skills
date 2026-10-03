@@ -33,7 +33,7 @@ those orchestration skills intentionally depend on their focused siblings.
 
 One semantic version covers the complete suite. A patch release corrects wording or sources, a minor release adds rules, checks, or skills, and a major release removes or renames skills or changes a workflow incompatibly. Individual `SKILL.md` files do not carry separate versions.
 
-Current release: `v1.2.0`.
+Current release: `v1.3.0`.
 
 Read the [changelog](CHANGELOG.md) to learn what changed and whether action is required.
 

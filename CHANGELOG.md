@@ -2,6 +2,40 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [1.3.0] - 2026-10-03
+
+This release makes function names checkable against behavior: a name must leave
+no ambiguity about any effect the function performs or the value it returns.
+
+### Added
+
+- Added unambiguous-function-name rules to `sui-move-source-style`'s API
+  vocabulary: name every effect and the return value, name each alternative
+  effect, and name a check-and-return helper for its result.
+- Reserved Sui object verbs such as `share`, `transfer`, `freeze`, and `wrap`
+  for functions that perform that operation, and barred value names that
+  collide with a type. Effects are mutation, custody movement, object
+  operations, and emission; a guard that only aborts is named by its error.
+- Added a `sui-move-source-style` receiver-syntax rule: a projection from a
+  prelude collection of the module's own type is a `<value>_of` function
+  aliased with a module-local `use fun`, such as `shares.bps()`.
+- Added a `sui-move-review` source-style check that flags a function name
+  omitting or misstating an effect or return value as a defect.
+
+### Changed
+
+- Merged "Name reads exactly for the domain value returned" into the new
+  projection rule.
+
+### Affected skills
+
+- `sui-move-source-style`
+- `sui-move-review`
+
+### Action required
+
+- Existing users: run `npx skills update -g` to install the revised skills.
+
 ## [1.2.0] - 2026-10-02
 
 This release makes readable function bodies checkable: branching derivations
