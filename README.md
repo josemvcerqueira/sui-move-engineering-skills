@@ -33,7 +33,7 @@ those orchestration skills intentionally depend on their focused siblings.
 
 One semantic version covers the complete suite. A patch release corrects wording or sources, a minor release adds rules, checks, or skills, and a major release removes or renames skills or changes a workflow incompatibly. Individual `SKILL.md` files do not carry separate versions.
 
-Current release: `v1.3.0`.
+Current release: `v1.4.0`.
 
 Read the [changelog](CHANGELOG.md) to learn what changed and whether action is required.
 
@@ -62,9 +62,9 @@ npx skills update sui-move-security -g
 | --- | --- |
 | `sui-move-guide` | Choose the correct skill or complete flow. Invoke it explicitly. |
 | `sui-move-architecture` | On-chain scope, packages, modules, minimal state, reusable value invariants, events and replay, authority, abilities, and dependency seams. |
-| `sui-move-source-style` | Sections, imports, names, visibility, signatures, errors, abort ownership, generic inference, receiver and index syntax, direct UID access, pinned framework reuse, locals, and API vocabulary. |
+| `sui-move-source-style` | Sections, imports, names, visibility, signatures, PTB composability, errors, abort ownership, generic inference, receiver and index syntax, direct UID access, pinned framework reuse, locals, and API vocabulary. |
 | `sui-move-security` | Invariant preservation, liveness, capabilities, replay, custody, DeFi accounting, adapters, time, oracles, randomness, and upgrades. |
-| `sui-move-testing` | Risk-based tests, exact failures, fixtures, properties, replay, and release gates. |
+| `sui-move-testing` | Risk-based tests, PTB runtime composition, exact failures, fixtures, properties, replay, and release gates. |
 | `sui-move-patterns` | Select reusable designs for cross-package ownership, ephemeral authority, adapter custody, deferred fungibility, and emergency shared-state replacement. |
 | `sui-move-review` | Full review across all four focused standards. |
 

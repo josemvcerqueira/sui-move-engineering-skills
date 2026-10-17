@@ -2,6 +2,38 @@
 
 This file records user-visible changes to the complete Sui Move engineering skill suite.
 
+## [1.4.0] - 2026-10-17
+
+This release makes PTB composability an explicit public-API contract, with
+transaction-runtime evidence for intended result chains.
+
+### Added
+
+- Added a bundled PTB-composability reference to `sui-move-source-style` for
+  callable signatures, admissible inputs, resource results, refunds, key-only
+  sinks, linear settlement, and intentional security restrictions.
+- Added an architecture gate for complete PTB data flows and a testing gate
+  that distinguishes actual PTB execution from direct Move calls or transaction
+  serialization.
+- Added an explicit guide route and full-review check for PTB composition.
+- Pinned implementation evidence for visibility, protocol-dependent reference
+  results, non-public entry arguments, result consumption, and transfer rules.
+
+### Affected skills
+
+- `sui-move-source-style`
+- `sui-move-architecture`
+- `sui-move-testing`
+- `sui-move-guide`
+- `sui-move-review`
+
+### Action required
+
+- Existing users: update the suite after this release is published to receive
+  the new reference and composition checks.
+- Published contracts: preserve existing signatures and abilities; use additive
+  APIs when permitted and retain intentional security restrictions.
+
 ## [1.3.0] - 2026-10-03
 
 This release makes function names checkable against behavior: a name must leave
