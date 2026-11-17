@@ -26,23 +26,23 @@ this skill as an explicit catalog, not a coding standard.
 
 ## Skills
 
-- `$sui-move-architecture`: package boundaries, module responsibilities,
+- `sui-move-architecture`: package boundaries, module responsibilities,
   minimal state, reusable value invariants, events and replay, canonical
   authority, dependency direction, on-chain scope, abilities, capabilities,
   and composition seams.
-- `$sui-move-source-style`: sections, imports, names, visibility, signatures,
+- `sui-move-source-style`: sections, imports, names, visibility, signatures,
   errors and abort ownership, receiver and index syntax, direct UID access,
   pinned library reuse, locals, API vocabulary, documentation, and test-only
   seams.
-- `$sui-move-security`: fail-fast ordering, authorization, signed actions,
+- `sui-move-security`: fail-fast ordering, authorization, signed actions,
   replay, bounded work, arithmetic, custody, integrations, time, oracles,
   randomness, pauses, versions, and upgrades.
-- `$sui-move-testing`: risk-based tests, exact failures, guard precedence,
+- `sui-move-testing`: risk-based tests, exact failures, guard precedence,
   fixtures, properties, event replay, integrations, upgrades, dependencies, and
   release gates.
-- `$sui-move-patterns`: selection and application of the suite's promoted
+- `sui-move-patterns`: selection and application of the suite's promoted
   reusable designs.
-- `$sui-move-review`: one complete audit across all focused standards.
+- `sui-move-review`: one complete audit across all focused standards.
 
 ## Common routes
 
