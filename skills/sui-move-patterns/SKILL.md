@@ -23,8 +23,8 @@ or public API from another protocol.
 4. Read the selected reference completely before recommending or changing the
    implementation. Read more than one reference only when the task genuinely
    combines patterns, and name the seam between them.
-5. Apply the focused `$sui-move-architecture`, `$sui-move-security`,
-   `$sui-move-source-style`, and `$sui-move-testing` rules that own the
+5. Apply the focused `sui-move-architecture`, `sui-move-security`,
+   `sui-move-source-style`, and `sui-move-testing` skill rules that own the
    underlying invariants. This step is complete when every selected pattern
    obligation maps to an owning focused rule or an explicit target decision.
 6. Report the chosen or rejected pattern, the invariant and ordered sequence,

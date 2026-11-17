@@ -51,9 +51,9 @@ npx skills update sui-move-security -g
 
 ## Use
 
-- Invoke `$sui-move-guide` when you want the smallest applicable skill sequence.
-- Invoke `$sui-move-review` for a full architecture, source, security, and testing audit.
-- Invoke `$sui-move-patterns` to select, compare, implement, or review one of the promoted reusable designs.
+- Invoke the `sui-move-guide` skill when you want the smallest applicable skill sequence.
+- Invoke the `sui-move-review` skill for a full architecture, source, security, and testing audit.
+- Invoke the `sui-move-patterns` skill to select, compare, implement, or review one of the promoted reusable designs.
 - Invoke a focused skill directly, or let compatible agents load it from its frontmatter description.
 
 ## Skills

@@ -74,7 +74,7 @@ this repository. Update it whenever an entry or its evidence changes.
 
 **Result:** none of the three remaining entries passes the complete entry gate.
 Five entries that did pass were promoted to
-[`$sui-move-patterns`](../skills/sui-move-patterns/SKILL.md), where each now
+[the `sui-move-patterns` skill](../skills/sui-move-patterns/SKILL.md), where each now
 ships as a conditional reference: Define–Export–Ignore,
 Validate–Issue–Consume, Bind–Handoff–Redeem, Wrap–Wait–Redeem, and
 Consume–Replace–Retire.
